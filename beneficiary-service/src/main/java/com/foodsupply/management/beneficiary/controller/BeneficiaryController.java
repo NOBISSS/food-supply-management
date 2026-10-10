@@ -44,4 +44,10 @@ public class BeneficiaryController {
         service.deactivate(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @PatchMapping("/{id}/reactivate")
+    public ResponseEntity<Void> reactivate(@PathVariable Long id) {
+        service.reactivate(id);
+        return ResponseEntity.noContent().build();
+    }
 }
