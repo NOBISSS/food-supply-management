@@ -48,6 +48,13 @@ public class BeneficiaryService {
         profile.setStatus("INACTIVE");
         repository.save(profile);
     }
+    
+    public void reactivate(Long id) {
+        BeneficiaryProfile profile = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Beneficiary not found: " + id));
+        profile.setStatus("ACTIVE");
+        repository.save(profile);
+    }
 
     private void applyRequest(BeneficiaryProfile profile, BeneficiaryRequest request) {
         profile.setFullName(request.getFullName());
