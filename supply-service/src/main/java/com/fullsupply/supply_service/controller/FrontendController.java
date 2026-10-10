@@ -6,21 +6,26 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class FrontendController {
 
-    @GetMapping("/catalog")
-    public String catalog() {return "forward:/catalog/index.html";}
+    @GetMapping({"/", "/dashboard", "/dashboard.html"})
+    public String home() {
+        return "dashboard";
+    }
 
-    @GetMapping("/distribution/")
+    @GetMapping({"/catalog", "/catalog/", "/catalog/index.html"})
+    public String catalog() {return "catalog/index";}
+
+    @GetMapping({"/distribution", "/distribution/", "/distribution/index.html"})
     public String distribution() {
-        return "forward:/distribution/index.html";
+        return "distribution/index";
     }
 
-    @GetMapping("/inventory/")
+    @GetMapping({"/inventory", "/inventory/", "/inventory/index.html"})
     public String inventory() {
-        return "forward:/inventory/index.html";
+        return "inventory/index";
     }
 
-    @GetMapping("/procurement/")
+    @GetMapping({"/procurement", "/procurement/", "/procurement/index.html"})
     public String procurement() {
-        return "forward:/procurement/index.html";
+        return "procurement/index";
     }
 }

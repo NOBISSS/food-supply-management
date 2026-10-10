@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,9 +33,11 @@
         .actions { display: flex; gap: 6px; flex-wrap: wrap; }
         #participantsPanel { display: none; }
         #participantsPanel .close-btn { float: right; }
+.appbar{max-width:1100px;margin:0 auto 24px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:18px;background:#fff;border:1px solid #e3e9e1;border-radius:12px}.appbrand{font-weight:800;letter-spacing:-.04em;color:#20352a}.appbrand span{color:#28734c}.appnav{display:flex;gap:7px;flex-wrap:wrap}.appnav a{padding:8px 10px;border-radius:8px;color:#64736a;font-size:12px;text-decoration:none}.appnav a:hover,.appnav a.active{background:#e7f2e9;color:#28734c;font-weight:700}@media(max-width:650px){body{padding:16px}.appbar{align-items:flex-start;flex-direction:column;margin-bottom:16px}.appnav{gap:2px}.appnav a{padding:7px}}
     </style>
 </head>
 <body>
+    <header class="appbar"><a class="appbrand" href="http://localhost:8083/">Nourish<span>Flow</span></a><nav class="appnav"><a href="http://localhost:8083/">Overview</a><a href="/beneficiaries" th:href="@{/beneficiaries}">Beneficiaries</a><a href="http://localhost:8083/catalog">Food catalogue</a><a href="http://localhost:8083/procurement">Procurement</a><a href="http://localhost:8083/inventory">Inventory</a><a href="http://localhost:8083/distribution">Distribution</a><a class="active" href="/nutrition-programmes" th:href="@{/nutrition-programmes}">Programmes</a><a href="http://localhost:8084/quality">Quality &amp; wastage</a><a href="http://localhost:8083/#reports">Reports</a></nav></header>
     <div class="container">
         <h2>Nutrition Programmes</h2>
 
@@ -97,7 +99,7 @@
 
         const API = '/api/nutrition-programmes';
         const token = getCookie('token');
-        if (!token) window.location.href = 'http://localhost:8081/login';
+        if (!token) window.location.href = 'http://localhost:8081/login?next=programmes';
 
         const form = document.getElementById('programmeForm');
         const messageBox = document.getElementById('message');

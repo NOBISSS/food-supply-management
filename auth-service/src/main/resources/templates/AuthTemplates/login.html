@@ -193,8 +193,13 @@
 					document.cookie = `token=${data.token}; domain=localhost; path=/; max-age=86400; SameSite=Lax`;
                     messageBox.className = 'message success';
                     messageBox.textContent = 'Login successful!';
-                    // TODO: redirect to the real dashboard once it exists
-                    // window.location.href = '/dashboard';
+                    const next = new URLSearchParams(window.location.search).get('next');
+                    const destination = next === 'programmes'
+                        ? 'http://localhost:8082/nutrition-programmes'
+                        : next === 'beneficiaries'
+                            ? 'http://localhost:8082/beneficiaries'
+                            : 'http://localhost:8083/';
+                    window.location.href = destination;
                 } else {
                     messageBox.className = 'message error';
                     messageBox.textContent = data.message || 'Login failed. Please check your credentials.';

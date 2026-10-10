@@ -23,8 +23,9 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/error").permitAll()
-                    .requestMatchers("/", "/css/**", "/js/**", "/webjars/**",
-                            "/beneficiaries.html", "/nutrition-programmes.html").permitAll()
+                    .requestMatchers("/", "/beneficiaries", "/beneficiaries.html",
+                            "/nutrition-programmes", "/nutrition-programmes.html",
+                            "/css/**", "/js/**", "/webjars/**").permitAll()
                     .anyRequest().authenticated()
                 )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
