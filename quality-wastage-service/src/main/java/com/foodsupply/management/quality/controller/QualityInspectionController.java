@@ -1,0 +1,6 @@
+package com.foodsupply.management.quality.controller;
+import com.foodsupply.management.quality.dto.QualityInspectionRequest;import com.foodsupply.management.quality.entity.QualityInspection;import com.foodsupply.management.quality.service.QualityInspectionService;import org.springframework.http.HttpStatus;import org.springframework.web.bind.annotation.*;import java.util.List;
+@RestController @RequestMapping("/api/quality-inspections") public class QualityInspectionController {private final QualityInspectionService service;public QualityInspectionController(QualityInspectionService s){service=s;}
+ @GetMapping public List<QualityInspection> all(){return service.findAll();}@GetMapping("/{id}") public QualityInspection one(@PathVariable Long id){return service.findById(id);}
+ @PostMapping @ResponseStatus(HttpStatus.CREATED) public QualityInspection create(@RequestBody QualityInspectionRequest r){return service.create(r);}@PutMapping("/{id}") public QualityInspection update(@PathVariable Long id,@RequestBody QualityInspectionRequest r){return service.update(id,r);}
+ @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id){service.delete(id);}}

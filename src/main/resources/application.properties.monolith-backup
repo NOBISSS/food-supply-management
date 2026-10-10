@@ -1,0 +1,25 @@
+spring.application.name=food-supply-management
+server.port=8081
+
+# PostgreSQL Docker database
+spring.datasource.url=jdbc:postgresql://localhost:5433/food_supply_db
+spring.datasource.username=${DB_USER}
+spring.datasource.password=${DB_PASSWORD}
+
+# Flyway migrations
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+logging.level.org.springframework.boot.autoconfigure.flyway=DEBUG
+
+# Hibernate
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=true
+spring.jpa.open-in-view=false
+
+jwt.secret=team18foodsupplysecretkeychangeitlater1234567890
+jwt.expiration-ms=86400000
+
+debug=true
+logging.level.org.flywaydb=DEBUG
+logging.level.org.springframework.boot.autoconfigure=DEBUG
+

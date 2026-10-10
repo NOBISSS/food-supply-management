@@ -1,0 +1,6 @@
+package com.foodsupply.management.quality.entity;
+import jakarta.persistence.*;import java.math.BigDecimal;import java.time.LocalDate;
+@Entity @Table(name="quality_inspections") public class QualityInspection {
+ @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;@Column(nullable=false) private Long stockBatchId;@Column(nullable=false) private LocalDate inspectionDate=LocalDate.now();
+ @Column(nullable=false,length=20) private String result;@Column(precision=10,scale=2) private BigDecimal wastageQuantity=BigDecimal.ZERO;@Column(length=255) private String correctiveAction;@Column(length=100) private String inspectedBy;
+ public Long getId(){return id;}public Long getStockBatchId(){return stockBatchId;}public void setStockBatchId(Long v){stockBatchId=v;}public LocalDate getInspectionDate(){return inspectionDate;}public void setInspectionDate(LocalDate v){inspectionDate=v;}public String getResult(){return result;}public void setResult(String v){result=v;}public BigDecimal getWastageQuantity(){return wastageQuantity;}public void setWastageQuantity(BigDecimal v){wastageQuantity=v;}public String getCorrectiveAction(){return correctiveAction;}public void setCorrectiveAction(String v){correctiveAction=v;}public String getInspectedBy(){return inspectedBy;}public void setInspectedBy(String v){inspectedBy=v;}}
