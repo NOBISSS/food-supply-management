@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Programmes - Food Supply Management</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f7f5; padding: 32px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h2 { color: #111827; margin-bottom: 16px; }
+        h3 { color: #111827; margin-bottom: 12px; font-size: 16px; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 24px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin: 12px 0 6px; }
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+        button { background: #16a34a; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        button:hover { background: #15803d; }
+        button.secondary { background: #6b7280; }
+        button.secondary:hover { background: #4b5563; }
+        button.danger { background: #dc2626; }
+        button.danger:hover { background: #b91c1c; }
+        button.info { background: #2563eb; }
+        button.info:hover { background: #1d4ed8; }
+        #programmeForm button[type="submit"] { width: 100%; padding: 10px; margin-top: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+        .message { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 13px; display: none; }
+        .message.error { background: #fef2f2; color: #b91c1c; display: block; }
+        .message.success { background: #f0fdf4; color: #15803d; display: block; }
+        .status-badge { padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .status-active { background: #f0fdf4; color: #15803d; }
+        .status-inactive { background: #fef2f2; color: #b91c1c; }
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        #participantsPanel { display: none; }
+        #participantsPanel .close-btn { float: right; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Nutrition Programmes</h2>
+
+        <div class="card">
+            <form id="programmeForm">
+                <input type="hidden" id="editId" value="" />
+
+                <label for="programmeName">Programme name</label>
+                <input type="text" id="programmeName" required />
+
+                <label for="description">Description</label>
+                <input type="text" id="description" />
+
+                <label for="targetGroup">Target group</label>
+                <input type="text" id="targetGroup" placeholder="e.g. Pregnant Women, Children 0-5" />
+
+                <label for="startDate">Start date</label>
+                <input type="date" id="startDate" />
+
+                <label for="endDate">End date</label>
+                <input type="date" id="endDate" />
+
+                <button type="submit" id="submitBtn">Create Programme</button>
+                <button type="button" id="cancelEditBtn" class="secondary" style="display:none; width:100%; margin-top:8px;">Cancel Edit</button>
+                <div id="message" class="message"></div>
+            </form>
+        </div>
+
+        <div class="card">
+            <table id="programmeTable">
+                <thead>
+                    <tr><th>Name</th><th>Target Group</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="card" id="participantsPanel">
+            <button type="button" class="secondary close-btn" id="closeParticipantsBtn">Close</button>
+            <h3 id="participantsTitle">Participants</h3>
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <input type="number" id="enrollBeneficiaryId" placeholder="Beneficiary ID to enroll" style="flex:1;" />
+                <button type="button" id="enrollBtn">Enroll</button>
+            </div>
+            <table id="participantsTable">
+                <thead>
+                    <tr><th>Beneficiary</th><th>Enrolled</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return match ? match.pop() : null;
+        }
+
+        const API = '/api/nutrition-programmes';
+        const token = getCookie('token');
+        if (!token) window.location.href = 'http://localhost:8081/login';
+
+        const form = document.getElementById('programmeForm');
+        const messageBox = document.getElementById('message');
+        const tbody = document.querySelector('#programmeTable tbody');
+        const editIdField = document.getElementById('editId');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+        const participantsPanel = document.getElementById('participantsPanel');
+        const participantsTitle = document.getElementById('participantsTitle');
+        const participantsTbody = document.querySelector('#participantsTable tbody');
+        const enrollBtn = document.getElementById('enrollBtn');
+        const enrollBeneficiaryId = document.getElementById('enrollBeneficiaryId');
+
+        let allProgrammes = [];
+        let activeProgrammeId = null;
+
+        async function loadProgrammes() {
+            const res = await fetch(API, { headers: { 'Authorization': 'Bearer ' + token } });
+            if (!res.ok) return;
+            allProgrammes = await res.json();
+            render();
+        }
+
+        function render() {
+            tbody.innerHTML = allProgrammes.map(p => `
+                <tr>
+                    <td>${p.programmeName}</td>
+                    <td>${p.targetGroup || '-'}</td>
+                    <td>${p.startDate || '-'}</td>
+                    <td>${p.endDate || '-'}</td>
+                    <td><span class="status-badge ${p.status === 'ACTIVE' ? 'status-active' : 'status-inactive'}">${p.status}</span></td>
+                    <td class="actions">
+                        <button type="button" onclick="editProgramme(${p.id})">Edit</button>
+                        <button type="button" class="info" onclick="viewParticipants(${p.id}, '${p.programmeName.replace(/'/g, "\\'")}')">Participants</button>
+                        ${p.status === 'ACTIVE'
+                            ? `<button type="button" class="danger" onclick="deactivateProgramme(${p.id})">Deactivate</button>`
+                            : `<button type="button" class="secondary" onclick="reactivateProgramme(${p.id})">Reactivate</button>`}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.editProgramme = function(id) {
+            const p = allProgrammes.find(x => x.id === id);
+            if (!p) return;
+            editIdField.value = p.id;
+            document.getElementById('programmeName').value = p.programmeName || '';
+            document.getElementById('description').value = p.description || '';
+            document.getElementById('targetGroup').value = p.targetGroup || '';
+            document.getElementById('startDate').value = p.startDate || '';
+            document.getElementById('endDate').value = p.endDate || '';
+            submitBtn.textContent = 'Update Programme';
+            cancelEditBtn.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        cancelEditBtn.addEventListener('click', () => {
+            form.reset();
+            editIdField.value = '';
+            submitBtn.textContent = 'Create Programme';
+            cancelEditBtn.style.display = 'none';
+        });
+
+        window.deactivateProgramme = async function(id) {
+            const res = await fetch(`${API}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.ok) loadProgrammes();
+        };
+
+        window.reactivateProgramme = async function(id) {
+            const res = await fetch(`${API}/${id}/reactivate`, {
+                method: 'PATCH',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.ok) loadProgrammes();
+        };
+
+        window.viewParticipants = async function(id, name) {
+            activeProgrammeId = id;
+            participantsTitle.textContent = 'Participants — ' + name;
+            participantsPanel.style.display = 'block';
+            await loadParticipants();
+            participantsPanel.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        document.getElementById('closeParticipantsBtn').addEventListener('click', () => {
+            participantsPanel.style.display = 'none';
+            activeProgrammeId = null;
+        });
+
+        async function loadParticipants() {
+            if (!activeProgrammeId) return;
+            const res = await fetch(`${API}/${activeProgrammeId}/participants`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (!res.ok) return;
+            const participants = await res.json();
+            participantsTbody.innerHTML = participants.map(p => `
+                <tr>
+                    <td>${p.beneficiaryName} (#${p.beneficiaryId})</td>
+                    <td>${p.enrolmentDate || '-'}</td>
+                    <td><span class="status-badge ${p.participationStatus === 'ACTIVE' ? 'status-active' : 'status-inactive'}">${p.participationStatus}</span></td>
+                    <td class="actions">
+                        ${p.participationStatus === 'ACTIVE' ? `
+                            <button type="button" class="secondary" onclick="completeParticipation(${p.id})">Complete</button>
+                            <button type="button" class="danger" onclick="dropParticipation(${p.id})">Drop</button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        enrollBtn.addEventListener('click', async () => {
+            if (!activeProgrammeId) return;
+            const beneficiaryId = enrollBeneficiaryId.value.trim();
+            if (!beneficiaryId) return;
+
+            const res = await fetch(`${API}/${activeProgrammeId}/enroll`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ beneficiaryId: Number(beneficiaryId) })
+            });
+
+            if (res.ok) {
+                enrollBeneficiaryId.value = '';
+                loadParticipants();
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.message || 'Could not enroll beneficiary');
+            }
+        });
+
+        window.dropParticipation = async function(participationId) {
+            const res = await fetch(`${API}/participations/${participationId}/drop`, {
+                method: 'PATCH',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.ok) loadParticipants();
+        };
+
+        window.completeParticipation = async function(participationId) {
+            const res = await fetch(`${API}/participations/${participationId}/complete`, {
+                method: 'PATCH',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.ok) loadParticipants();
+        };
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageBox.className = 'message';
+
+            const payload = {
+                programmeName: document.getElementById('programmeName').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                targetGroup: document.getElementById('targetGroup').value.trim(),
+                startDate: document.getElementById('startDate').value || null,
+                endDate: document.getElementById('endDate').value || null
+            };
+
+            const editId = editIdField.value;
+            const url = editId ? `${API}/${editId}` : API;
+            const method = editId ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    messageBox.className = 'message success';
+                    messageBox.textContent = editId ? 'Programme updated successfully' : 'Programme created successfully';
+                    form.reset();
+                    editIdField.value = '';
+                    submitBtn.textContent = 'Create Programme';
+                    cancelEditBtn.style.display = 'none';
+                    loadProgrammes();
+                } else {
+                    messageBox.className = 'message error';
+                    messageBox.textContent = data.message || 'Operation failed';
+                }
+            } catch (err) {
+                console.error('NUTRITION PROGRAMME ERROR:', err);
+                messageBox.className = 'message error';
+                messageBox.textContent = 'Could not reach the server.';
+            }
+        });
+
+        loadProgrammes();
+    </script>
+</body>
+</html>
