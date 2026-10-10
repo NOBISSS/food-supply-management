@@ -29,11 +29,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                // thymeleaf pages + static resources stay open for now, lock down later as needed
-                .requestMatchers("/", "/css/**", "/js/**", "/webjars/**").permitAll()
-                .anyRequest().authenticated()
-            )
+            	    .requestMatchers("/api/auth/**").permitAll()
+            	    .requestMatchers("/error").permitAll()
+            	    .requestMatchers("/register", "/login").permitAll()
+            	    .requestMatchers("/", "/css/**", "/js/**", "/webjars/**").permitAll()
+            	    .anyRequest().authenticated()
+            	)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

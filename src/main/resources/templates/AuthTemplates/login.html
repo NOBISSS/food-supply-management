@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Food Supply Management</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f4f7f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: #16a34a;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .brand-text h1 {
+            font-size: 18px;
+            color: #111827;
+        }
+        .brand-text p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        h2 {
+            font-size: 22px;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+            margin-top: 16px;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        input:focus {
+            border-color: #16a34a;
+        }
+        button {
+            width: 100%;
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 24px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        button:hover {
+            background: #15803d;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .message {
+            margin-top: 16px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+        .message.error {
+            background: #fef2f2;
+            color: #b91c1c;
+            display: block;
+        }
+        .message.success {
+            background: #f0fdf4;
+            color: #15803d;
+            display: block;
+        }
+        .footer-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .footer-link a {
+            color: #16a34a;
+            font-weight: 600;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="brand">
+            <div class="brand-icon">F</div>
+            <div class="brand-text">
+                <h1>FoodSupply</h1>
+                <p>Supply &amp; Nutrition Management</p>
+            </div>
+        </div>
+
+        <h2>Welcome back</h2>
+        <p class="subtitle">Log in to continue to your dashboard.</p>
+
+        <form id="loginForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required placeholder="e.g. parth.c" />
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Your password" />
+
+            <button type="submit" id="submitBtn">Log in</button>
+
+            <div id="message" class="message"></div>
+        </form>
+
+        <div class="footer-link">
+            Don't have an account? <a href="/register">Register</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const messageBox = document.getElementById('message');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageBox.className = 'message';
+            messageBox.textContent = '';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+
+            const payload = {
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('username', data.username);
+                    localStorage.setItem('role', data.role);
+
+                    messageBox.className = 'message success';
+                    messageBox.textContent = 'Login successful!';
+                    // TODO: redirect to the real dashboard once it exists
+                    // window.location.href = '/dashboard';
+                } else {
+                    messageBox.className = 'message error';
+                    messageBox.textContent = data.message || 'Login failed. Please check your credentials.';
+                }
+            } catch (err) {
+                messageBox.className = 'message error';
+                messageBox.textContent = 'Could not reach the server. Is the backend running?';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Log in';
+            }
+        });
+    </script>
+</body>
+</html>
