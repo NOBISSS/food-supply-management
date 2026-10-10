@@ -175,7 +175,8 @@
                 username: document.getElementById('username').value.trim(),
                 password: document.getElementById('password').value
             };
-
+	
+			console.log('2: payload', payload);
             try {
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
@@ -189,7 +190,6 @@
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('role', data.role);
-					console.log(token);
 					document.cookie = `token=${data.token}; domain=localhost; path=/; max-age=86400; SameSite=Lax`;
                     messageBox.className = 'message success';
                     messageBox.textContent = 'Login successful!';
@@ -198,11 +198,12 @@
                 } else {
                     messageBox.className = 'message error';
                     messageBox.textContent = data.message || 'Login failed. Please check your credentials.';
-                }
-            } catch (err) {
-                messageBox.className = 'message error';
-                messageBox.textContent = 'Could not reach the server. Is the backend running?';
-            } finally {
+				} 
+				}catch (err) {
+				    console.error('LOGIN ERROR:', err);
+				    messageBox.className = 'message error';
+				    messageBox.textContent = 'Could not reach the server. Is the backend running?';
+				} finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Log in';
             }
