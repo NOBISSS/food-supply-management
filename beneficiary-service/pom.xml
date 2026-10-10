@@ -104,11 +104,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
-
-
-git add .
-git status  
-git commit -m "Add beneficiary-service with CRUD, JWT security, and validation; fix TimeZone bug in both services"
-git push origin main
