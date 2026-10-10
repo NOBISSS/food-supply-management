@@ -1,0 +1,7 @@
+package com.foodsupply.management.distribution.entity;
+import jakarta.persistence.*;import java.math.BigDecimal;import java.time.LocalDate;import java.time.LocalDateTime;
+@Entity @Table(name="distribution_plans") public class DistributionPlan {
+ @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;@Column(nullable=false) private Long beneficiaryId;@Column(nullable=false) private Long foodItemId;
+ @Column(nullable=false,precision=10,scale=2) private BigDecimal quantity;@Column(nullable=false) private Long distributionCentreId;@Column(nullable=false) private LocalDate plannedDate;
+ @Column(nullable=false,length=20) private String status="PLANNED";@Column(nullable=false,updatable=false) private LocalDateTime createdAt=LocalDateTime.now();
+ public Long getId(){return id;}public Long getBeneficiaryId(){return beneficiaryId;}public void setBeneficiaryId(Long v){beneficiaryId=v;}public Long getFoodItemId(){return foodItemId;}public void setFoodItemId(Long v){foodItemId=v;}public BigDecimal getQuantity(){return quantity;}public void setQuantity(BigDecimal v){quantity=v;}public Long getDistributionCentreId(){return distributionCentreId;}public void setDistributionCentreId(Long v){distributionCentreId=v;}public LocalDate getPlannedDate(){return plannedDate;}public void setPlannedDate(LocalDate v){plannedDate=v;}public String getStatus(){return status;}public void setStatus(String v){status=v;}public LocalDateTime getCreatedAt(){return createdAt;}}

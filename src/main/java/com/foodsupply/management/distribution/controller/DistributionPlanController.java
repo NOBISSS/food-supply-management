@@ -1,0 +1,6 @@
+package com.foodsupply.management.distribution.controller;
+import com.foodsupply.management.distribution.dto.DistributionPlanRequest;import com.foodsupply.management.distribution.entity.DistributionPlan;import com.foodsupply.management.distribution.service.DistributionPlanService;import org.springframework.http.HttpStatus;import org.springframework.web.bind.annotation.*;import java.util.List;
+@RestController @RequestMapping("/api/distribution-plans") public class DistributionPlanController {private final DistributionPlanService service;public DistributionPlanController(DistributionPlanService s){service=s;}
+ @GetMapping public List<DistributionPlan> all(){return service.findAll();}@GetMapping("/{id}") public DistributionPlan one(@PathVariable Long id){return service.findById(id);}
+ @PostMapping @ResponseStatus(HttpStatus.CREATED) public DistributionPlan create(@RequestBody DistributionPlanRequest r){return service.create(r);}@PutMapping("/{id}") public DistributionPlan update(@PathVariable Long id,@RequestBody DistributionPlanRequest r){return service.update(id,r);}
+ @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id){service.delete(id);}}

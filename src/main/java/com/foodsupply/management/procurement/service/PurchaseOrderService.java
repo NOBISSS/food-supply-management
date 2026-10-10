@@ -1,0 +1,6 @@
+package com.foodsupply.management.procurement.service;
+import com.foodsupply.management.common.exception.ResourceNotFoundException;import com.foodsupply.management.procurement.dto.PurchaseOrderRequest;import com.foodsupply.management.procurement.entity.PurchaseOrder;import com.foodsupply.management.procurement.repository.PurchaseOrderRepository;import org.springframework.stereotype.Service;import java.util.List;
+@Service public class PurchaseOrderService {private final PurchaseOrderRepository repository;public PurchaseOrderService(PurchaseOrderRepository r){repository=r;}
+ public List<PurchaseOrder> findAll(){return repository.findAll();}public PurchaseOrder findById(Long id){return repository.findById(id).orElseThrow(()->new ResourceNotFoundException("Purchase order",id));}
+ public PurchaseOrder create(PurchaseOrderRequest r){return repository.save(map(new PurchaseOrder(),r));}public PurchaseOrder update(Long id,PurchaseOrderRequest r){return repository.save(map(findById(id),r));}public void delete(Long id){repository.delete(findById(id));}
+ private PurchaseOrder map(PurchaseOrder p,PurchaseOrderRequest r){p.setSupplierId(r.supplierId());if(r.status()!=null)p.setStatus(r.status());if(r.orderDate()!=null)p.setOrderDate(r.orderDate());p.setExpectedDelivery(r.expectedDelivery());return p;}}
