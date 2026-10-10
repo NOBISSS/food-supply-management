@@ -4,29 +4,38 @@
 
 > Note: IntelliJ's built-in Markdown preview does not render Mermaid diagrams unless you install the **Mermaid** plugin (`Settings → Plugins → search "Mermaid"`). This version uses a plain-text diagram instead, so it reads correctly in IntelliJ with no extra setup. GitHub will still render it fine as a code block.
 
-## Overview
+## 0. Current state vs. this document
 
-An enterprise-style microservices system built with Spring Boot (MVC), REST APIs between services, and a shared PostgreSQL instance. Seven domain microservices, each owning its own tables, plus supporting infrastructure (gateway, reporting aggregator, web UI).
+The repository is now a Maven multi-module project. Existing authentication and implemented domain code have been separated into independently runnable Spring Boot modules, with shared infrastructure in `common-library`. The package names and API paths are preserved. This extraction is structural: it does not implement an API gateway, web UI, service-to-service REST calls, or missing domain workflows.
 
-| # | Service | Owns | Maps to requirement |
-|---|---|---|---|
-| 1 | `beneficiary-service` | Beneficiary profiles, demographics, eligibility, nutrition needs | Beneficiary Management |
-| 2 | `food-catalog-service` | Food items, nutrition values, categories, units | Food Item & Nutrition Management |
-| 3 | `procurement-service` | Suppliers, purchase orders, procurement status | Procurement Management |
-| 4 | `inventory-service` | Stock batches, expiry, movement, min-stock levels | Inventory & Stock Management |
-| 5 | `distribution-service` | Distribution plans, distribution centres | Food Distribution Management |
-| 6 | `nutrition-programme-service` | Programmes, meal plans, dietary requirements, participation | Nutrition Programme Management |
-| 7 | `quality-wastage-service` | Quality inspections, wastage, corrective actions | Food Quality & Wastage Management |
+Modules with endpoint implementations are `auth-service`, `beneficiary-service`, `food-catalog-service`, `procurement-service`, `distribution-service`, `quality-wastage-service`, and `reporting-service`. `inventory-service` and `nutrition-programme-service` currently contain startup/build structure and migrations only; their domain entities and APIs remain unimplemented. `reporting-service` currently reuses domain repository code against the shared database, so it is a transitional local dashboard, not yet the REST-based reporting aggregator described below. The API gateway and web UI remain planned components with no code in this repository.
+
+## 1. Overview
+
+An enterprise-style microservices system built with Spring Boot (MVC), REST APIs between services, and a shared PostgreSQL instance. Eight domain microservices (seven business domains + auth), each owning its own tables, plus supporting infrastructure (gateway, reporting aggregator, web UI).
+
+| # | Service | Port | Owns | Maps to requirement |
+|---|---|---|---|---|
+| 0 | `auth-service` | 8081 | App users, roles, JWT issuance | Enterprise Integration — security |
+| 1 | `beneficiary-service` | 8082 | Beneficiary profiles, demographics, eligibility, nutrition needs | Beneficiary Management |
+| 2 | `food-catalog-service` | 8083 | Food items, nutrition values, categories, units | Food Item & Nutrition Management |
+| 3 | `procurement-service` | 8084 | Suppliers, purchase orders, purchase order items, procurement status | Procurement Management |
+| 4 | `inventory-service` | 8085 | Stock batches, stock movement, expiry, min-stock levels | Inventory & Stock Management |
+| 5 | `distribution-service` | 8086 | Distribution plans, distribution centres | Food Distribution Management |
+| 6 | `nutrition-programme-service` | 8087 | Programmes, meal plans, dietary requirements, participation | Nutrition Programme Management |
+| 7 | `quality-wastage-service` | 8088 | Quality inspections, wastage, corrective actions | Food Quality & Wastage Management |
 
 **Supporting components:**
 
-| Component | Role |
-|---|---|
-| `api-gateway` | Single entry point; routes requests to the right service; central auth/rate-limiting |
-| `reporting-service` | Read-only aggregator for Dashboard & Reporting — queries the 7 services, owns no primary data |
-| `web-ui` | Thymeleaf frontend; talks only to the gateway, never directly to a service |
+| Component | Port | Role |
+|---|---|---|
+| `api-gateway` | 8080 | Single entry point; routes requests to the right service; validates JWT once, forwards identity downstream |
+| `reporting-service` | 8089 | Read-only aggregator for Dashboard & Reporting — queries the 8 services, owns no primary data |
+| `web-ui` | 8090 | Thymeleaf frontend; talks only to the gateway, never directly to a service |
 
-## Architecture Diagram
+Moving auth into its own service (rather than leaving it embedded, as it is in the current monolith) matters because every other service needs to validate the same JWT independently — that's the thing that actually makes this "microservices" instead of "one app with packages."
+
+## 2. Architecture Diagram
 
 ```
                               +-------------------+
@@ -38,25 +47,29 @@ An enterprise-style microservices system built with Spring Boot (MVC), REST APIs
                                          v
                               +----------+----------+
                               |     API Gateway      |
+                              |  (JWT validation)     |
                               +----------+----------+
-         +----------+----------+--------+--------+----------+------------+------------+
-         |          |          |        |        |          |            |            |
-         v          v          v        v        v          v            v            v
-   +--------+  +--------+  +------+  +-----+  +------+  +--------+  +---------+  +----------+
-   |benefic.|  |food-   |  |procure|  |inven|  |distri|  |nutri.  |  |quality- |  |reporting |
-   |-service|  |catalog |  |-ment  |  |tory |  |bution|  |program.|  |wastage  |  |-service  |
-   +----+---+  +---+----+  +--+----+  +-+---+  +--+---+  +---+----+  +----+----+  +----+-----+
-        |          |          |          |         |          |           |            |
-        |          |          |          |         |          |           |            |
-        |          |          |          |  distribution-service also calls:           |
-        |          |          |          |   -> inventory-service   (check stock)       |
-        |          |          |          |   -> beneficiary-service (verify eligibility) |
-        |          |          |  procurement-service also calls:                        |
-        |          |          |   -> food-catalog-service (resolve item)                 |
-        |          |          |                                                          |
-        |          |          |   reporting-service queries all 7 services (read-only)   |
-        |          |          |                                                          |
-        +----------+----------+----------+---------+----------+-----------+------------+
+    +----------+----------+----------+---------+----------+------------+------------+------------+
+    |          |          |          |         |          |            |            |            |
+    v          v          v          v         v          v            v            v            v
++------+  +--------+  +--------+  +------+  +-----+  +------+  +--------+  +---------+  +----------+
+| auth |  |benefic.|  |food-   |  |procure|  |inven|  |distri|  |nutri.  |  |quality- |  |reporting |
+|-svc  |  |-service|  |catalog |  |-ment  |  |tory |  |bution|  |program.|  |wastage  |  |-service  |
++------+  +----+---+  +---+----+  +--+----+  +-+---+  +--+---+  +---+----+  +----+----+  +----+-----+
+               |          |          |          |         |          |           |            |
+               |          |          |          |         |          |           |            |
+               |          |          |          |  distribution-service also calls:           |
+               |          |          |          |   -> inventory-service   (check & reserve)   |
+               |          |          |          |   -> beneficiary-service (verify eligibility)|
+               |          |          |  procurement-service also calls:                        |
+               |          |          |   -> food-catalog-service (resolve item on PO line)     |
+               |          |                                                                    |
+               |          |   nutrition-programme-service also calls:                          |
+               |          |    -> beneficiary-service (resolve participant)                    |
+               |          |                                                                    |
+               |          |   reporting-service queries all 8 services (read-only)              |
+               |          |                                                                    |
+               +----------+----------+----------+---------+----------+-----------+------------+
                                          |
                                          v
                               +----------+----------+
@@ -67,16 +80,18 @@ An enterprise-style microservices system built with Spring Boot (MVC), REST APIs
                               +------------------------+
 ```
 
-Each service connects to the **same** Postgres instance but only migrates and touches its own tables — no cross-service foreign keys, ever. Consistency across services is enforced through REST calls (and, in the full enterprise version, async events), not the database.
+Every service connects to the **same** Postgres instance but only migrates and touches its own tables — no cross-service foreign keys, ever. Consistency across services is enforced through REST calls (and, in the full enterprise version, async events), not the database.
 
-## Communication Patterns
+## 3. Communication Patterns
 
 **Synchronous (REST)** — for calls that need an answer right away:
 - `web-ui` → `api-gateway` → any service (page reads)
+- `api-gateway` → `auth-service` (token validation, or local JWT verification using a shared signing secret — see 3.1)
 - `distribution-service` → `inventory-service` (check & reserve stock before confirming a plan)
 - `distribution-service` → `beneficiary-service` (verify eligibility)
-- `procurement-service` → `food-catalog-service` (resolve a food item on a purchase order)
-- `reporting-service` → all 7 services (read-only aggregation for the dashboard)
+- `procurement-service` → `food-catalog-service` (resolve a food item on a purchase order line)
+- `nutrition-programme-service` → `beneficiary-service` (resolve a participant)
+- `reporting-service` → all 8 services (read-only aggregation for the dashboard)
 
 **Asynchronous (events — Kafka/RabbitMQ, if time allows)** — for state changes other services react to:
 - `inventory-service` publishes `StockBelowMinimum` → `procurement-service` auto-creates a purchase request
@@ -84,9 +99,36 @@ Each service connects to the **same** Postgres instance but only migrates and to
 - `quality-wastage-service` publishes `BatchRejected` → `inventory-service` writes the batch off
 - `distribution-service` publishes `DistributionCompleted` → `nutrition-programme-service` updates participation
 
-## Database Schema
+If there's no time for a broker, implement the above as direct REST calls instead (e.g. `quality-wastage-service` calls `PATCH /api/stock-batches/{id}/reject` on `inventory-service`) and note in the README that the event-driven version is the stretch goal. A working synchronous version beats a half-wired broker.
+
+### 3.1 Auth across services
+
+Each service needs to know who's calling without re-hitting `auth-service` on every request. The practical approach for a hackathon:
+- `auth-service` signs JWTs with a shared secret (`jwt.secret`, from environment, never hard-coded).
+- Every other service — including `api-gateway` — carries a small JWT-verification filter that checks the signature and expiry locally, and reads role claims off the token. No network call needed per request.
+- `api-gateway` additionally forwards `Authorization` unchanged to downstream services so each service can still enforce its own role rules (e.g. only `ADMIN`/`PROCUREMENT_OFFICER` can create a purchase order).
+
+This is what the current monolith's `auth` package already does internally (bearer token filter + JWT utility) — extracting it means copying that filter class into every other service's `security` package, not rebuilding it.
+
+## 4. Database Schema
 
 One shared PostgreSQL instance (`foodsupply`); each service's Flyway migration (`db/migration/V1__<service>.sql`) creates **only its own tables**.
+
+### auth-service
+```sql
+CREATE TABLE roles (
+    id   BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE app_users (
+    id            BIGSERIAL PRIMARY KEY,
+    username      VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role_id       BIGINT NOT NULL REFERENCES roles(id),
+    created_at    TIMESTAMP NOT NULL DEFAULT now()
+);
+```
 
 ### beneficiary-service
 ```sql
@@ -228,52 +270,78 @@ CREATE TABLE quality_inspection (
 );
 ```
 
-## Project Structure in IntelliJ
+## 5. REST API surface per service
 
-Open the **repo root** (not an individual service folder) so IntelliJ's Maven tool window picks up every module:
+Each service exposes only its own CRUD plus any cross-service read endpoints other services depend on.
+
+| Service | Endpoints |
+|---|---|
+| `auth-service` | `POST /api/auth/register`, `POST /api/auth/login` |
+| `beneficiary-service` | `GET/POST/PUT/DELETE /api/beneficiaries[/{id}]`, `GET /api/beneficiaries/{id}/eligibility` (used by distribution-service) |
+| `food-catalog-service` | `GET/POST/PUT/DELETE /api/food-items[/{id}]` |
+| `procurement-service` | `GET/POST/PUT/DELETE /api/suppliers[/{id}]`, `GET/POST/PUT/DELETE /api/purchase-orders[/{id}]`, `GET/POST /api/purchase-orders/{id}/items` |
+| `inventory-service` | `GET/POST/PUT/DELETE /api/stock-batches[/{id}]`, `POST /api/stock-batches/{id}/movements`, `GET /api/stock-batches/available?foodItemId=` (used by distribution-service), `PATCH /api/stock-batches/{id}/reject` (used by quality-wastage-service) |
+| `distribution-service` | `GET/POST/PUT/DELETE /api/distribution-centres[/{id}]`, `GET/POST/PUT/DELETE /api/distribution-plans[/{id}]` |
+| `nutrition-programme-service` | `GET/POST/PUT/DELETE /api/nutrition-programmes[/{id}]`, `GET/POST /api/nutrition-programmes/{id}/participants` |
+| `quality-wastage-service` | `GET/POST/PUT/DELETE /api/quality-inspections[/{id}]` |
+| `reporting-service` | `GET /api/dashboard/summary`, `GET /api/dashboard/stock-shortages`, `GET /api/dashboard/wastage` |
+
+## 6. Project Structure in IntelliJ
+
+Open the repository root as a Maven multi-module project:
 
 ```
-food-supply-management/          <- open THIS in IntelliJ
-├── pom.xml                      <- parent pom, packaging=pom, lists all modules
-├── docker-compose.yml
-├── beneficiary-service/
-│   ├── pom.xml
-│   └── src/main/resources/
-│       ├── application.properties   (server.port=8081)
-│       └── db/migration/V1__beneficiary.sql
-├── food-catalog-service/        (server.port=8082)
-├── procurement-service/         (server.port=8083)
-├── inventory-service/           (server.port=8084)
-├── distribution-service/        (server.port=8085)
-├── nutrition-programme-service/ (server.port=8086)
-├── quality-wastage-service/     (server.port=8087)
-├── reporting-service/           (server.port=8088)
-└── web-ui/                      (server.port=8080)
+food-supply-management/
+├── pom.xml                     (Maven aggregator)
+├── common-library/             (shared exception and JWT security classes)
+├── auth-service/               (port 8081)
+├── beneficiary-service/        (port 8082)
+├── food-catalog-service/       (port 8083)
+├── procurement-service/        (port 8084)
+├── inventory-service/          (port 8085; schema/startup scaffold only)
+├── distribution-service/      (port 8086)
+├── nutrition-programme-service/ (port 8087; schema/startup scaffold only)
+├── quality-wastage-service/    (port 8088)
+└── reporting-service/          (port 8089; current DB-backed dashboard)
 ```
 
-If a module doesn't show up in the Maven tool window: right-click its `pom.xml` → **Add as Maven Project**.
+Each service has its own Maven module, Spring Boot entry point, `application.properties`, and migration directory. Root `mvnw.cmd` builds all modules. The API gateway and web UI from the target design have not been created.
+## 7. IntelliJ Setup Steps
 
-## IntelliJ Setup Steps
-
-1. **Start the shared database** — open the Terminal tab (bottom) and run:
+1. Start the shared PostgreSQL container from the repository root:
    ```
    docker compose up -d
    ```
-
-2. **Connect the Database tool** (once, for the whole project):
-   `View → Tool Windows → Database` → `+` → **Data Source → PostgreSQL** → host `localhost`, port `5432`, db `foodsupply` → **Download missing driver files** → **Test Connection** → OK.
-
-3. **Create a Run Configuration per service**:
-   `Run → Edit Configurations → +` → **Spring Boot** → set Main class and Module for each of the 9 services (7 domain services + gateway + web-ui; add `reporting-service` as the 10th if you build it).
-
-4. **Group them into a Compound config** to start everything with one click:
-   `+` → **Compound** → add all service configs → name it `All Services` → Run ▶.
-
-5. **Startup order**: `docker compose up -d` first → then run services (Flyway migrates each service's own tables on boot) → run `web-ui` last.
-
-## Design Principles
+2. Ensure `DB_USER`, `DB_PASSWORD`, and `JWT_SECRET` are available to the service processes. Compose uses PostgreSQL user `postgres`; Spring Boot does not automatically import `.env` into IntelliJ run configurations.
+3. Import the repository root as a Maven project. Create Spring Boot run configurations by selecting a service module and its main class; module ports are listed in Section 6.
+4. Optionally group the current service configurations in a Compound configuration. The API gateway and web UI are not part of the current build.
+5. Services use separate Flyway history tables. Review the migration note in Section 9 before starting against a database previously migrated by the monolith.
+## 8. Design Principles
 
 - **One schema, many owners** — all services share one Postgres instance for simpler local setup, but each service migrates and writes only its own tables. No cross-service foreign keys.
 - **No direct service-to-service DB reads** — a service never queries another service's tables directly, even though they're in the same database; it calls that service's REST API.
 - **Controller → Service → Repository** (MVC) inside every service; cross-service calls happen in the service layer via `RestTemplate`/`WebClient`, never in a controller.
 - **No static/dummy data** — every screen reads from a service's own database, per the hackathon rules.
+- **One JWT, verified everywhere** — `auth-service` issues it; every other service verifies it locally with the shared secret rather than calling back to `auth-service` per request.
+
+## 9. Current extraction status and remaining work
+
+The existing application code has been split into Maven modules while preserving controller routes and business code. Small Spring Boot entry points, module POMs, and per-service runtime configuration were added so the modules can be built and launched separately. Existing JWT security classes are in `common-library` and are included by the current services.
+
+The following parts of the target design remain unimplemented: API gateway, web UI, REST calls between services, reporting over HTTP, inventory and nutrition-programme domain APIs, and role-specific authorization. Reporting currently depends on domain modules and reads repositories directly, so it must be replaced with HTTP aggregation before it is an independently owned reporting service.
+
+A shared PostgreSQL database is still configured. Each domain service has a distinct Flyway history table, while auth retains the previous Flyway history table for compatibility with its existing V1 migration. A database previously migrated by the monolith may need migration-history reconciliation before the extracted service migrations are started; do not reset a database containing needed data.
+
+Build from the repository root with:
+
+```
+./mvnw -DskipTests package
+```
+
+On Windows PowerShell:
+
+```
+.\mvnw.cmd -DskipTests package
+```
+
+The standalone executable artifacts use the `-exec.jar` classifier. `spring-boot:run` can also be run with the desired Maven module selected.
