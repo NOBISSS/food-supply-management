@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beneficiaries - Food Supply Management</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f7f5; padding: 32px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h2 { color: #111827; margin-bottom: 16px; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 24px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin: 12px 0 6px; }
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+        button { background: #16a34a; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        button:hover { background: #15803d; }
+        button.secondary { background: #6b7280; }
+        button.secondary:hover { background: #4b5563; }
+        button.danger { background: #dc2626; }
+        button.danger:hover { background: #b91c1c; }
+        #beneficiaryForm button[type="submit"] { width: 100%; padding: 10px; margin-top: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+        .message { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 13px; display: none; }
+        .message.error { background: #fef2f2; color: #b91c1c; display: block; }
+        .message.success { background: #f0fdf4; color: #15803d; display: block; }
+        .status-badge { padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .status-active { background: #f0fdf4; color: #15803d; }
+        .status-inactive { background: #fef2f2; color: #b91c1c; }
+        .actions { display: flex; gap: 6px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Beneficiaries</h2>
+
+        <div class="card">
+            <form id="beneficiaryForm">
+                <input type="hidden" id="editId" value="" />
+
+                <label for="fullName">Full name</label>
+                <input type="text" id="fullName" required />
+
+                <label for="gender">Gender</label>
+                <select id="gender">
+                    <option value="">-- Select --</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                </select>
+
+                <label for="dateOfBirth">Date of birth</label>
+                <input type="date" id="dateOfBirth" />
+
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" placeholder="10-digit phone number" />
+
+                <label for="address">Address</label>
+                <input type="text" id="address" />
+
+                <label for="householdId">Household ID</label>
+                <input type="text" id="householdId" />
+
+                <button type="submit" id="submitBtn">Register Beneficiary</button>
+                <button type="button" id="cancelEditBtn" class="secondary" style="display:none; width:100%; margin-top:8px;">Cancel Edit</button>
+                <div id="message" class="message"></div>
+            </form>
+        </div>
+
+        <div class="card">
+            <table id="beneficiaryTable">
+                <thead>
+                    <tr><th>Name</th><th>Gender</th><th>Phone</th><th>Household</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+		function getCookie(name) {
+		    const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+		    return match ? match.pop() : null;
+		}
+
+		const API = '/api/beneficiaries';
+		const token = getCookie('token');
+		console.log("TOKEN",token);
+		if (!token) window.location.href = 'http://localhost:8081/login';
+
+        const form = document.getElementById('beneficiaryForm');
+        const messageBox = document.getElementById('message');
+        const tbody = document.querySelector('#beneficiaryTable tbody');
+        const editIdField = document.getElementById('editId');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+        let allBeneficiaries = [];
+
+        async function loadBeneficiaries() {
+            const res = await fetch(API, { headers: { 'Authorization': 'Bearer ' + token } });
+            if (!res.ok) return;
+            allBeneficiaries = await res.json();
+            render();
+        }
+
+        function render() {
+            tbody.innerHTML = allBeneficiaries.map(b => `
+                <tr>
+                    <td>${b.fullName}</td>
+                    <td>${b.gender || '-'}</td>
+                    <td>${b.phone || '-'}</td>
+                    <td>${b.householdId || '-'}</td>
+                    <td><span class="status-badge ${b.status === 'ACTIVE' ? 'status-active' : 'status-inactive'}">${b.status}</span></td>
+                    <td class="actions">
+                        <button type="button" onclick="editBeneficiary(${b.id})">Edit</button>
+                        ${b.status === 'ACTIVE'
+                            ? `<button type="button" class="danger" onclick="deactivateBeneficiary(${b.id})">Deactivate</button>`
+                            : `<button type="button" class="secondary" onclick="reactivateBeneficiary(${b.id})">Reactivate</button>`}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.editBeneficiary = function(id) {
+            const b = allBeneficiaries.find(x => x.id === id);
+            if (!b) return;
+            editIdField.value = b.id;
+            document.getElementById('fullName').value = b.fullName || '';
+            document.getElementById('gender').value = b.gender || '';
+            document.getElementById('dateOfBirth').value = b.dateOfBirth || '';
+            document.getElementById('phone').value = b.phone || '';
+            document.getElementById('address').value = b.address || '';
+            document.getElementById('householdId').value = b.householdId || '';
+            submitBtn.textContent = 'Update Beneficiary';
+            cancelEditBtn.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        cancelEditBtn.addEventListener('click', () => {
+            form.reset();
+            editIdField.value = '';
+            submitBtn.textContent = 'Register Beneficiary';
+            cancelEditBtn.style.display = 'none';
+        });
+
+        window.deactivateBeneficiary = async function(id) {
+            const res = await fetch(`${API}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.ok) loadBeneficiaries();
+        };
+
+        window.reactivateBeneficiary = async function(id) {
+            const res = await fetch(`${API}/${id}/reactivate`, {
+                method: 'PATCH',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.ok) loadBeneficiaries();
+        };
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageBox.className = 'message';
+
+            const payload = {
+                fullName: document.getElementById('fullName').value.trim(),
+                gender: document.getElementById('gender').value || null,
+                dateOfBirth: document.getElementById('dateOfBirth').value || null,
+                phone: document.getElementById('phone').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                householdId: document.getElementById('householdId').value.trim()
+            };
+
+            const editId = editIdField.value;
+            const url = editId ? `${API}/${editId}` : API;
+            const method = editId ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    messageBox.className = 'message success';
+                    messageBox.textContent = editId ? 'Beneficiary updated successfully' : 'Beneficiary registered successfully';
+                    form.reset();
+                    editIdField.value = '';
+                    submitBtn.textContent = 'Register Beneficiary';
+                    cancelEditBtn.style.display = 'none';
+                    loadBeneficiaries();
+                } else {
+                    messageBox.className = 'message error';
+                    messageBox.textContent = data.message || 'Operation failed';
+                }
+            } catch (err) {
+                messageBox.className = 'message error';
+                messageBox.textContent = 'Could not reach the server.';
+            }
+        });
+
+        loadBeneficiaries();
+    </script>
+</body>
+</html>

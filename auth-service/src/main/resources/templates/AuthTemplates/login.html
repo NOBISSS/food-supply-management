@@ -189,7 +189,8 @@
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('role', data.role);
-
+					console.log(token);
+					document.cookie = `token=${data.token}; domain=localhost; path=/; max-age=86400; SameSite=Lax`;
                     messageBox.className = 'message success';
                     messageBox.textContent = 'Login successful!';
                     // TODO: redirect to the real dashboard once it exists
