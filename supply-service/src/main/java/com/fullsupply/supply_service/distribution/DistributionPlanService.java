@@ -1,6 +1,13 @@
 package com.fullsupply.supply_service.distribution;
 
-import com.fullsupply.supply_service.catalog.FoodItem;
+import com.fullsupply.supply_service.catalog.entity.FoodItem;
+import com.fullsupply.supply_service.distribution.entity.DistributionCentre;
+import com.fullsupply.supply_service.distribution.entity.DistributionPlan;
+import com.fullsupply.supply_service.distribution.entity.DistributionPlanItem;
+import com.fullsupply.supply_service.distribution.entity.DistributionStatusLog;
+import com.fullsupply.supply_service.distribution.repository.DistributionPlanItemRepository;
+import com.fullsupply.supply_service.distribution.repository.DistributionPlanRepository;
+import com.fullsupply.supply_service.distribution.repository.DistributionStatusLogRepository;
 import com.fullsupply.supply_service.inventory.BatchService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
