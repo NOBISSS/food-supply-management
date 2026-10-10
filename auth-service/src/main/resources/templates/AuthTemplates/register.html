@@ -158,9 +158,6 @@
             <label for="phone">Phone</label>
             <input type="text" id="phone" name="phone" placeholder="10-digit phone number" />
 
-            <label for="roleName">Role</label>
-            <input type="text" id="roleName" name="roleName" placeholder="e.g. VIEWER (leave blank for default)" />
-
             <button type="submit" id="submitBtn">Register</button>
 
             <div id="message" class="message"></div>
@@ -189,7 +186,6 @@
                 fullName: document.getElementById('fullName').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 phone: document.getElementById('phone').value.trim(),
-                roleName: document.getElementById('roleName').value.trim() || null
             };
 
             try {

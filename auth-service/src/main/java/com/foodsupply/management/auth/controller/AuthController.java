@@ -1,11 +1,15 @@
 package com.foodsupply.management.auth.controller;
-
+import jakarta.validation.Valid;
 import com.foodsupply.management.auth.dto.AuthResponse;
 import com.foodsupply.management.auth.dto.LoginRequest;
 import com.foodsupply.management.auth.dto.RegisterRequest;
 import com.foodsupply.management.auth.entity.AppUser;
 import com.foodsupply.management.auth.repository.AppUserRepository;
 import com.foodsupply.management.auth.service.AuthService;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
     }
 

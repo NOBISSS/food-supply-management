@@ -1,12 +1,29 @@
 package com.foodsupply.management.auth.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 public class RegisterRequest {
+
+    @NotBlank(message = "Username is required")
+    @Size(min = 3, max = 50, message = "Username must be 3-50 characters")
     private String username;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
+
+    @NotBlank(message = "Full name is required")
     private String fullName;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email must be valid")
     private String email;
-    private String phone;
-    private String roleName; // optional, defaults to VIEWER if not sent
+
+    @Pattern(regexp = "^\\d{10}$", message = "Phone must be a 10-digit number")
+    private String phone; // optional — blank is fine, but if present it must match
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
@@ -22,7 +39,4 @@ public class RegisterRequest {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-
-    public String getRoleName() { return roleName; }
-    public void setRoleName(String roleName) { this.roleName = roleName; }
 }
