@@ -12,7 +12,7 @@ public class DistributionStatusLog {
     @Column(name = "status_log_id")
     private Long statusLogId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plan_item_id", nullable = false)
     private DistributionPlanItem planItem;
 

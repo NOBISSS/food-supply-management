@@ -14,11 +14,11 @@ public class StockBatch {
     @Column(name = "batch_id")
     private Long batchId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "food_item_id", nullable = false)
     private FoodItem foodItem;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "warehouse_id", nullable = false)
     private Warehouse warehouse;
 

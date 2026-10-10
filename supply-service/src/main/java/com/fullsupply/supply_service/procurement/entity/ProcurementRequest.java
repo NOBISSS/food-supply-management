@@ -14,7 +14,7 @@ public class ProcurementRequest {
     @Column(name = "request_id")
     private Long requestId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "food_item_id", nullable = false)
     private FoodItem foodItem;
 

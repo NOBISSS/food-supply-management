@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -341,7 +341,7 @@
         <button class="menu-toggle" id="openMenu" aria-label="Open menu"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"></path></svg></button>
         <div class="breadcrumbs"><span>Workspace</span><span>/</span><strong>Food catalogue</strong></div>
         <div class="top-actions">
-          <label class="search"><svg viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg><input id="globalSearch" placeholder="Search anything..." aria-label="Search"></label><kbd>⌘ K</kbd>
+          <label class="search"><svg viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg><input id="globalSearch" placeholder="Search anything..." aria-label="Search"></label><kbd>âŒ˜ K</kbd>
           <button class="icon-button notification" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M10.27 21a2 2 0 0 0 3.46 0M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.41 5.96-2.74 7.33Z"></path></svg><i></i></button>
           <button class="new-button" type="button" id="newRequest"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"></path></svg><span>New request</span></button>
         </div>
@@ -351,7 +351,7 @@
         <section class="page-heading">
           <div>
             <p class="eyebrow">Friday, 10 October 2026</p>
-            <h1>Food catalogue <span>✦</span></h1>
+            <h1>Food catalogue <span>âœ¦</span></h1>
             <p class="heading-copy">Manage the ingredients and nutrition items available across your network.</p>
           </div>
           <div class="heading-actions">
@@ -363,9 +363,9 @@
         <div class="error-banner" id="errorBanner"><svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 12 21h8a2 2 0 0 0 1.73-3ZM12 9v4M12 17h.01"></path></svg><span id="errorMessage"></span></div>
 
         <section class="catalog-summary" aria-label="Catalogue summary">
-          <div class="summary-card"><div class="summary-icon green"><svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg></div><div class="summary-label">Catalogue items</div><div class="summary-value" id="itemCount">—</div><div class="summary-note good">Available to programmes</div></div>
-          <div class="summary-card"><div class="summary-icon peach"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93 4.93 19.07"></path></svg></div><div class="summary-label">Food categories</div><div class="summary-value" id="categoryCount">—</div><div class="summary-note">Organised for planning</div></div>
-          <div class="summary-card"><div class="summary-icon purple"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h3"></path></svg></div><div class="summary-label">Measured units</div><div class="summary-value" id="unitCount">—</div><div class="summary-note">Distinct stock formats</div></div>
+          <div class="summary-card"><div class="summary-icon green"><svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg></div><div class="summary-label">Catalogue items</div><div class="summary-value" id="itemCount">â€”</div><div class="summary-note good">Available to programmes</div></div>
+          <div class="summary-card"><div class="summary-icon peach"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93 4.93 19.07"></path></svg></div><div class="summary-label">Food categories</div><div class="summary-value" id="categoryCount">â€”</div><div class="summary-note">Organised for planning</div></div>
+          <div class="summary-card"><div class="summary-icon purple"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h3"></path></svg></div><div class="summary-label">Measured units</div><div class="summary-value" id="unitCount">â€”</div><div class="summary-note">Distinct stock formats</div></div>
           <div class="summary-card"><div class="summary-icon blue"><svg viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7l-8-4Z"></path><path d="m4 7 8 4 8-4M12 11v10"></path></svg></div><div class="summary-label">Data connection</div><div class="summary-value" id="connectionStatus">Ready</div><div class="summary-note" id="syncNote">Syncing with API</div></div>
         </section>
 
@@ -382,7 +382,7 @@
             <div class="table-wrap">
               <table>
                 <thead><tr><th>Food item</th><th>Category</th><th>Unit</th><th>Recommended</th></tr></thead>
-                <tbody id="catalogBody"><tr class="loading-row"><td colspan="4">Loading catalogue…</td></tr></tbody>
+                <tbody id="catalogBody"><tr class="loading-row"><td colspan="4">Loading catalogueâ€¦</td></tr></tbody>
               </table>
               <div class="empty-state" id="emptyState">No food items match your current filters.</div>
             </div>
@@ -391,7 +391,7 @@
           <div class="side-stack">
             <div class="panel">
               <div class="panel-heading"><div><h2>Category coverage</h2><p>Items grouped for programme planning.</p></div></div>
-              <div class="category-list" id="categoryList"><div class="loading-row">Loading categories…</div></div>
+              <div class="category-list" id="categoryList"><div class="loading-row">Loading categoriesâ€¦</div></div>
             </div>
             <div class="panel info-card">
               <div class="panel-heading"><div><h2>Catalogue guidance</h2><p>Keep supply data consistent</p></div></div>
@@ -406,9 +406,9 @@
         </section>
 
         <footer class="footer">
-          <span>© 2026 NourishFlow</span>
+          <span>Â© 2026 NourishFlow</span>
           <span>Data synced <span id="lastSynced">waiting for API</span> <i class="status-dot"></i></span>
-          <span>Spring Boot API <strong>● Online</strong></span>
+          <span>Spring Boot API <strong>â— Online</strong></span>
         </footer>
       </div>
     </main>
@@ -416,180 +416,42 @@
   <button class="mobile-overlay" id="mobileOverlay" aria-label="Close menu"></button>
 
   <script>
-    (() => {
-      const state = { items: [], categories: [], hasLoaded: false, requestInFlight: false };
-      const elements = {
-        sidebar: document.getElementById("sidebar"),
-        openMenu: document.getElementById("openMenu"),
-        closeMenu: document.getElementById("closeMenu"),
-        mobileOverlay: document.getElementById("mobileOverlay"),
-        catalogBody: document.getElementById("catalogBody"),
-        emptyState: document.getElementById("emptyState"),
-        catalogSearch: document.getElementById("catalogSearch"),
-        categoryFilter: document.getElementById("categoryFilter"),
-        categoryList: document.getElementById("categoryList"),
-        itemCount: document.getElementById("itemCount"),
-        categoryCount: document.getElementById("categoryCount"),
-        unitCount: document.getElementById("unitCount"),
-        connectionStatus: document.getElementById("connectionStatus"),
-        syncNote: document.getElementById("syncNote"),
-        errorBanner: document.getElementById("errorBanner"),
-        errorMessage: document.getElementById("errorMessage"),
-        lastSynced: document.getElementById("lastSynced")
-      };
-
-      const icons = {
-        food: '<svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>',
-        category: '<svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93 4.93 19.07"></path></svg>'
-      };
-
-      const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-      }[character]));
-
-      const categoryId = (category) => category?.categoryId ?? category?.id;
-      const categoryName = (category) => category?.categoryName ?? category?.name ?? "Uncategorised";
-      const itemCategory = (item) => item?.category ?? {};
-
-      function setError(message) {
-        elements.errorMessage.textContent = message;
-        elements.errorBanner.classList.add("visible");
-        elements.connectionStatus.textContent = state.hasLoaded ? "Stale" : "Offline";
-        elements.syncNote.textContent = state.hasLoaded ? "Last database snapshot retained" : "API connection needs attention";
+    (()=>{
+      const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+      const errorBanner=document.getElementById("errorBanner"),errorMessage=document.getElementById("errorMessage");
+      const filter=document.getElementById("categoryFilter"),search=document.getElementById("catalogSearch");
+      const state={items:[],categories:[]};
+      const setError=m=>{errorMessage.textContent=m;errorBanner.classList.add("visible");document.getElementById("connectionStatus").textContent="Offline";document.getElementById("syncNote").textContent="Could not sync"};
+      const clearError=()=>errorBanner.classList.remove("visible");
+      const sync=()=>document.getElementById("lastSynced").textContent=new Intl.DateTimeFormat([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date());
+      function render(){
+        const query=search.value.trim().toLowerCase();
+        const rows=state.items.filter(i=>(!filter.value||String(i.category?.categoryId??i.categoryId)===filter.value)&&(!query||`${i.name||""} ${i.description||""} ${i.category?.categoryName||""}`.toLowerCase().includes(query)));
+        document.getElementById("itemCount").textContent=state.items.length.toLocaleString();
+        document.getElementById("categoryCount").textContent=state.categories.length.toLocaleString();
+        document.getElementById("unitCount").textContent=new Set(state.items.map(i=>i.unit).filter(Boolean)).size.toLocaleString();
+        document.getElementById("catalogBody").innerHTML=rows.map(i=>`<tr><td><div class="food-name"><div class="food-symbol">${esc((i.name||"F").slice(0,1).toUpperCase())}</div><div><div>${esc(i.name||"Unnamed food")}</div><div class="food-description">${esc(i.description||"")}</div></div></div></td><td><span class="category-tag">${esc(i.category?.categoryName||"Uncategorised")}</span></td><td><span class="unit-tag">${esc(i.unit||"—")}</span></td><td class="quantity">${esc(i.recommendedQuantity??"—")}</td></tr>`).join("")||'<tr><td colspan="4" class="loading-row">No food items match your filters.</td></tr>';
+        document.getElementById("emptyState").classList.toggle("visible",rows.length===0);
+        document.getElementById("categoryList").innerHTML=state.categories.map(c=>{const count=state.items.filter(i=>String(i.category?.categoryId??i.categoryId)===String(c.categoryId)).length;return `<div class="category-row"><div class="category-row-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"></path></svg></div><div class="category-info"><strong>${esc(c.categoryName||"Unnamed category")}</strong><span>${esc(c.description||"Food category")}</span></div><div class="category-count">${count}</div></div>`}).join("")||'<div class="empty-state visible">No categories available.</div>';
       }
-
-      function clearError() {
-        elements.errorBanner.classList.remove("visible");
-        elements.connectionStatus.textContent = "Ready";
-        elements.syncNote.textContent = "Live database connection";
+      async function load(){
+        const refresh=document.getElementById("refreshButton");refresh.disabled=true;
+        try{
+          const [categoryResponse,itemResponse]=await Promise.all([fetch("/api/catalog/categories",{cache:"no-store"}),fetch("/api/catalog/items",{cache:"no-store"})]);
+          if(!categoryResponse.ok||!itemResponse.ok)throw Error(`Catalogue API returned ${categoryResponse.status}/${itemResponse.status}.`);
+          const [categories,items]=await Promise.all([categoryResponse.json(),itemResponse.json()]);
+          if(!Array.isArray(categories)||!Array.isArray(items))throw Error("Catalogue API returned an unexpected response.");
+          state.categories=categories;state.items=items;
+          const selected=filter.value;filter.innerHTML='<option value="">All categories</option>'+categories.map(c=>`<option value="${esc(c.categoryId)}">${esc(c.categoryName)}</option>`).join("");filter.value=categories.some(c=>String(c.categoryId)===selected)?selected:"";
+          render();clearError();document.getElementById("connectionStatus").textContent="Online";document.getElementById("syncNote").textContent="Connected to API";sync();
+        }catch(e){setError(`Could not load catalogue data. ${e.message} Check that the supply-service API is running.`)}finally{refresh.disabled=false}
       }
-
-      function renderSummary() {
-        elements.itemCount.textContent = state.items.length.toLocaleString();
-        elements.categoryCount.textContent = state.categories.length.toLocaleString();
-        elements.unitCount.textContent = new Set(state.items.map((item) => item.unit).filter(Boolean)).size.toLocaleString();
-      }
-
-      function renderCategoryFilter() {
-        const currentValue = elements.categoryFilter.value;
-        elements.categoryFilter.innerHTML = '<option value="">All categories</option>' +
-          state.categories.map((category) => `<option value="${escapeHtml(categoryId(category))}">${escapeHtml(categoryName(category))}</option>`).join("");
-        if ([...elements.categoryFilter.options].some((option) => option.value === currentValue)) {
-          elements.categoryFilter.value = currentValue;
-        }
-      }
-
-      function renderCategoryList() {
-        if (!state.categories.length) {
-          elements.categoryList.innerHTML = '<div class="empty-state visible">No categories available.</div>';
-          return;
-        }
-        elements.categoryList.innerHTML = state.categories.map((category) => {
-          const id = categoryId(category);
-          const count = state.items.filter((item) => String(categoryId(itemCategory(item))) === String(id)).length;
-          return `<div class="category-row">
-            <div class="category-row-icon">${icons.category}</div>
-            <div class="category-info"><strong>${escapeHtml(categoryName(category))}</strong><span>${escapeHtml(category.description || "Catalogue grouping")}</span></div>
-            <div class="category-count">${count}</div>
-          </div>`;
-        }).join("");
-      }
-
-      function renderItems() {
-        const query = elements.catalogSearch.value.trim().toLowerCase();
-        const selectedCategory = elements.categoryFilter.value;
-        const filtered = state.items.filter((item) => {
-          const category = itemCategory(item);
-          const text = [item.name, item.description, item.unit, categoryName(category)].join(" ").toLowerCase();
-          const matchesQuery = !query || text.includes(query);
-          const matchesCategory = !selectedCategory || String(categoryId(category)) === selectedCategory;
-          return matchesQuery && matchesCategory;
-        });
-
-        elements.catalogBody.innerHTML = filtered.map((item) => {
-          const category = itemCategory(item);
-          const recommended = item.recommendedQuantity ?? "—";
-          return `<tr>
-            <td><div class="food-name"><div class="food-symbol">${icons.food}</div><div><div>${escapeHtml(item.name || "Unnamed item")}</div><div class="food-description">${escapeHtml(item.description || "No description provided")}</div></div></div></td>
-            <td><span class="category-tag">${escapeHtml(categoryName(category))}</span></td>
-            <td><span class="unit-tag">${escapeHtml(item.unit || "—")}</span></td>
-            <td class="quantity">${escapeHtml(recommended)}</td>
-          </tr>`;
-        }).join("");
-        elements.emptyState.classList.toggle("visible", filtered.length === 0);
-        if (!filtered.length) elements.catalogBody.innerHTML = "";
-      }
-
-      async function loadCatalogue() {
-        if (state.requestInFlight) return;
-        state.requestInFlight = true;
-        const firstLoad = !state.hasLoaded;
-        if (firstLoad) {
-          elements.catalogBody.innerHTML = '<tr class="loading-row"><td colspan="4">Loading catalogue from database…</td></tr>';
-          elements.categoryList.innerHTML = '<div class="loading-row">Loading categories…</div>';
-        }
-        try {
-          const [categoriesResponse, itemsResponse] = await Promise.all([
-            fetch("/api/catalog/categories", { cache: "no-store" }),
-            fetch("/api/catalog/items", { cache: "no-store" })
-          ]);
-          if (!categoriesResponse.ok || !itemsResponse.ok) {
-            throw new Error(`Catalogue API returned ${categoriesResponse.status}/${itemsResponse.status}.`);
-          }
-          const [categories, items] = await Promise.all([categoriesResponse.json(), itemsResponse.json()]);
-          if (!Array.isArray(categories) || !Array.isArray(items)) throw new Error("Catalogue API returned an unexpected response.");
-          state.categories = categories;
-          state.items = items;
-          renderSummary();
-          renderCategoryFilter();
-          renderCategoryList();
-          renderItems();
-          state.hasLoaded = true;
-          clearError();
-          elements.lastSynced.textContent = new Intl.DateTimeFormat([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit"
-          }).format(new Date());
-        } catch (error) {
-          setError(`Could not load catalogue data. ${error.message} Check that the supply-service API is running.`);
-        } finally {
-          state.requestInFlight = false;
-        }
-      }
-
-      function closeMenu() {
-        elements.sidebar.classList.remove("sidebar-open");
-        elements.mobileOverlay.classList.remove("visible");
-      }
-
-      elements.openMenu.addEventListener("click", () => {
-        elements.sidebar.classList.add("sidebar-open");
-        elements.mobileOverlay.classList.add("visible");
-      });
-      elements.closeMenu.addEventListener("click", closeMenu);
-      elements.mobileOverlay.addEventListener("click", closeMenu);
-      elements.catalogSearch.addEventListener("input", renderItems);
-      elements.categoryFilter.addEventListener("change", renderItems);
-      document.getElementById("clearFilters").addEventListener("click", () => {
-        elements.catalogSearch.value = "";
-        elements.categoryFilter.value = "";
-        renderItems();
-      });
-      document.getElementById("refreshButton").addEventListener("click", loadCatalogue);
-      document.getElementById("newRequest").addEventListener("click", () => {
-        elements.catalogSearch.focus();
-        elements.catalogSearch.placeholder = "Search an item to request...";
-      });
-      document.addEventListener("keydown", (event) => {
-        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-          event.preventDefault();
-          elements.catalogSearch.focus();
-        }
-      });
-
-      loadCatalogue();
-      window.setInterval(loadCatalogue, 15000);
+      const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
+      document.getElementById("openMenu").onclick=()=>{document.getElementById("sidebar").classList.add("sidebar-open");document.getElementById("mobileOverlay").classList.add("visible")};
+      document.getElementById("closeMenu").onclick=closeMenu;document.getElementById("mobileOverlay").onclick=closeMenu;
+      document.getElementById("clearFilters").onclick=()=>{filter.value="";search.value="";render()};
+      document.getElementById("refreshButton").onclick=load;filter.onchange=render;search.oninput=render;
+      load();window.setInterval(load,15000);
     })();
   </script>
 </body>

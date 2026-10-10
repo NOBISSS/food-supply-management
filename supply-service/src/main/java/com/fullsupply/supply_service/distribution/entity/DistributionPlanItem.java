@@ -13,14 +13,14 @@ public class DistributionPlanItem {
     @Column(name = "plan_item_id")
     private Long planItemId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plan_id", nullable = false)
     private DistributionPlan plan;
 
     @Column(name = "beneficiary_id", nullable = false)
     private Long beneficiaryId; // owned by beneficiary-service
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "food_item_id", nullable = false)
     private FoodItem foodItem;
 

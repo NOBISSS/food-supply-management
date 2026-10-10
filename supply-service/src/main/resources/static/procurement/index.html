@@ -375,7 +375,7 @@
       document.getElementById("openMenu").onclick=()=>{document.getElementById("sidebar").classList.add("sidebar-open");document.getElementById("mobileOverlay").classList.add("visible")};
       document.getElementById("closeMenu").onclick=closeMenu;document.getElementById("mobileOverlay").onclick=closeMenu;
       document.getElementById("clearFilters").onclick=()=>{document.querySelectorAll("select").forEach(s=>s.value="");render()};
-      document.getElementById("refreshButton").onclick=load;document.querySelectorAll("select").forEach(s=>s.onchange=render);load();setInterval(load,15000);
+      document.querySelectorAll("select").forEach(s=>s.onchange=render);load();setInterval(load,15000);
     })();
   </script>
 
