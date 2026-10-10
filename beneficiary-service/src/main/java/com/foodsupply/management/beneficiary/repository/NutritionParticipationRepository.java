@@ -4,6 +4,7 @@ import com.foodsupply.management.beneficiary.entity.NutritionParticipation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NutritionParticipationRepository extends JpaRepository<NutritionParticipation, Long> {
 
@@ -11,6 +12,5 @@ public interface NutritionParticipationRepository extends JpaRepository<Nutritio
 
     List<NutritionParticipation> findByBeneficiaryId(Long beneficiaryId);
 
-    boolean existsByProgrammeIdAndBeneficiaryIdAndParticipationStatus(
-            Long programmeId, Long beneficiaryId, String participationStatus);
+    Optional<NutritionParticipation> findByProgrammeIdAndBeneficiaryId(Long programmeId, Long beneficiaryId);
 }

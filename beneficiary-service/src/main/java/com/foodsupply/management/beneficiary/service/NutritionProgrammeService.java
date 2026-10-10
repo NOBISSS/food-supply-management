@@ -12,6 +12,7 @@ import com.foodsupply.management.beneficiary.repository.NutritionParticipationRe
 import com.foodsupply.management.beneficiary.repository.NutritionProgrammeRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -69,17 +70,25 @@ public class NutritionProgrammeService {
         BeneficiaryProfile beneficiary = beneficiaryRepository.findById(request.getBeneficiaryId())
                 .orElseThrow(() -> new RuntimeException("Beneficiary not found: " + request.getBeneficiaryId()));
 
-        boolean alreadyActive = participationRepository.existsByProgrammeIdAndBeneficiaryIdAndParticipationStatus(
-                programme.getId(), beneficiary.getId(), "ACTIVE");
-        if (alreadyActive) {
-            throw new RuntimeException("Beneficiary is already actively enrolled in this programme");
+        // One participation row per beneficiary per programme, ever. If a record already
+        // exists (COMPLETED or DROPPED), re-activate it instead of inserting a duplicate row.
+        NutritionParticipation participation = participationRepository
+                .findByProgrammeIdAndBeneficiaryId(programme.getId(), beneficiary.getId())
+                .orElse(null);
+
+        if (participation != null) {
+            if ("ACTIVE".equals(participation.getParticipationStatus())) {
+                throw new RuntimeException("Beneficiary is already actively enrolled in this programme");
+            }
+            participation.setParticipationStatus("ACTIVE");
+            participation.setEnrolmentDate(LocalDate.now());
+        } else {
+            participation = new NutritionParticipation();
+            participation.setProgrammeId(programme.getId());
+            participation.setBeneficiaryId(beneficiary.getId());
         }
 
-        NutritionParticipation participation = new NutritionParticipation();
-        participation.setProgrammeId(programme.getId());
-        participation.setBeneficiaryId(beneficiary.getId());
         participationRepository.save(participation);
-
         return toParticipationResponse(participation, beneficiary.getFullName());
     }
 
