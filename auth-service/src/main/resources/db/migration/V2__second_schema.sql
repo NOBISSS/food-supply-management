@@ -2,10 +2,7 @@
 -- V2__food_supply_schema.sql
 -- Integrated Food Supply & Nutrition Management
 -- Step 2: Beneficiary, Catalog, Procurement, Inventory, Distribution, Nutrition Programme, Quality & Wastage
-
--- =========================================================
 -- BENEFICIARY MANAGEMENT
--- =========================================================
 
 CREATE TABLE beneficiary_profiles (
                                       beneficiary_id      BIGSERIAL PRIMARY KEY,
