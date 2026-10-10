@@ -6,7 +6,7 @@ services:
 
     environment:
       POSTGRES_DB: food_supply_db
-      POSTGRES_USER: food_admin
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your environment}
 
     ports:
@@ -16,7 +16,7 @@ services:
       - postgres_data:/var/lib/postgresql
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U food_admin -d food_supply_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d food_supply_db"]
       interval: 5s
       timeout: 5s
       retries: 10

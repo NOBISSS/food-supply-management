@@ -40,4 +40,3 @@ build/
 
 # Log files
 *.log
-src/main/resources/application.properties
