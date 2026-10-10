@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f8f5">
+  <title>NourishFlow | Inventory</title>
+  <style>
+    :root {
+      --background: #f6f8f5;
+      --card: #ffffff;
+      --text: #1d2a22;
+      --muted: #718078;
+      --soft-muted: #9aa69e;
+      --border: #e3e9e2;
+      --green: #4d9567;
+      --green-dark: #27613d;
+      --green-soft: #e8f3eb;
+      --amber: #d99c34;
+      --amber-soft: #fff4dd;
+      --blue: #6798c8;
+      --blue-soft: #e8f2fc;
+      --purple: #9278c2;
+      --purple-soft: #f0eafd;
+      --shadow: 0 2px 8px rgba(50, 75, 55, 0.04);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--background);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    svg { display: block; width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    .app-shell { min-height: 100vh; display: flex; }
+    .sidebar {
+      width: 260px;
+      min-height: 100vh;
+      padding: 25px 16px 18px;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex: 0 0 260px;
+      flex-direction: column;
+    }
+    .brand-row { display: flex; align-items: center; gap: 10px; padding: 0 10px 25px; }
+    .brand-mark {
+      width: 36px; height: 36px; display: grid; place-items: center;
+      color: #fff; background: var(--green); border-radius: 11px;
+    }
+    .brand-mark svg { width: 20px; height: 20px; }
+    .brand-name { color: var(--text); letter-spacing: -.03em; font-size: 18px; font-weight: 750; }
+    .brand-name span { color: var(--green); }
+    .brand-sub { margin-top: 2px; color: #8a968d; font-size: 10px; }
+    .workspace {
+      display: flex; align-items: center; gap: 10px; padding: 10px;
+      border: 1px solid var(--border); border-radius: 12px;
+    }
+    .workspace-avatar, .profile-avatar {
+      width: 32px; height: 32px; display: grid; place-items: center; flex: none;
+      color: var(--green-dark); background: #dceee1; border-radius: 10px;
+      font-size: 11px; font-weight: 750;
+    }
+    .workspace strong, .profile strong { display: block; font-size: 12px; }
+    .workspace span, .profile span { display: block; margin-top: 3px; color: #87938a; font-size: 10px; }
+    .workspace > svg { width: 15px; margin-left: auto; color: #91a096; }
+    .nav-label {
+      margin: 28px 10px 9px; color: #a0aaa3; font-size: 10px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+    .main-nav { display: flex; flex-direction: column; gap: 4px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 11px;
+      color: #65736a; background: transparent; border: 0; border-radius: 9px;
+      text-align: left; font-size: 12px;
+    }
+    .nav-item:hover, .nav-item.active { color: var(--green-dark); background: var(--green-soft); }
+    .nav-item.active { font-weight: 700; }
+    .nav-item.active svg { color: var(--green); }
+    .nav-item b {
+      min-width: 20px; margin-left: auto; padding: 2px 6px; color: #a7781b;
+      background: #fff2d7; border-radius: 9px; text-align: center; font-size: 10px;
+    }
+    .sidebar-bottom { margin-top: auto; }
+    .help-card { margin: 17px 5px; padding: 14px; background: #f1f7f1; border-radius: 12px; }
+    .help-icon {
+      width: 28px; height: 28px; display: grid; place-items: center; color: var(--green);
+      background: #dceee1; border-radius: 8px;
+    }
+    .help-icon svg { width: 15px; height: 15px; }
+    .help-card strong { display: block; margin-top: 10px; font-size: 12px; }
+    .help-card p { margin: 5px 0 10px; color: #728078; font-size: 10px; line-height: 1.5; }
+    .help-card button, .text-button {
+      display: inline-flex; align-items: center; gap: 5px; padding: 0;
+      color: var(--green-dark); background: transparent; border: 0; font-size: 11px; font-weight: 700;
+    }
+    .help-card button svg, .text-button svg { width: 13px; height: 13px; }
+    .profile { display: flex; align-items: center; gap: 9px; padding: 15px 7px 0; border-top: 1px solid var(--border); }
+    .profile button { margin-left: auto; padding: 4px; color: #87938a; background: transparent; border: 0; }
+    .profile button svg { width: 14px; height: 14px; }
+
+    .main-content { min-width: 0; flex: 1; overflow-x: hidden; }
+    .topbar {
+      height: 72px; padding: 0 36px; display: flex; align-items: center; justify-content: space-between; gap: 18px;
+      background: rgba(255, 255, 255, .78); border-bottom: 1px solid var(--border);
+    }
+    .menu-toggle, .mobile-close { display: none; color: #66746b; background: transparent; border: 0; }
+    .breadcrumbs { display: flex; gap: 9px; color: #9aa59d; font-size: 12px; }
+    .breadcrumbs strong { color: #344139; }
+    .top-actions { display: flex; align-items: center; gap: 15px; }
+    .search {
+      width: 225px; padding: 8px 10px; display: flex; align-items: center; gap: 8px;
+      background: var(--background); border: 1px solid var(--border); border-radius: 8px;
+    }
+    .search svg { width: 15px; height: 15px; color: #8b988f; }
+    .search input { min-width: 0; flex: 1; color: #364239; background: transparent; border: 0; outline: 0; font-size: 11px; }
+    .search input::placeholder { color: #a1aaa3; }
+    kbd { padding: 3px 5px; color: #89958d; background: #fff; border: 1px solid #dce4dd; border-radius: 4px; font-size: 9px; }
+    .icon-button {
+      width: 30px; height: 30px; display: grid; place-items: center; position: relative;
+      color: #68766d; background: transparent; border: 0; border-radius: 8px;
+    }
+    .icon-button:hover { background: #eef4ee; }
+    .icon-button svg { width: 17px; height: 17px; }
+    .notification i { position: absolute; top: 5px; right: 5px; width: 5px; height: 5px; background: #d76b65; border: 1px solid #fff; border-radius: 50%; }
+    .new-button {
+      display: inline-flex; align-items: center; gap: 7px; padding: 9px 13px;
+      color: #fff; background: var(--green); border: 0; border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(77, 149, 103, .18); font-size: 11px; font-weight: 700;
+    }
+    .new-button svg { width: 15px; height: 15px; }
+
+    .page-body { max-width: 1440px; margin: 0 auto; padding: 33px 36px 22px; animation: fade-in .35s both; }
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 27px; }
+    .eyebrow { margin: 0 0 7px; color: #8a968d; font-size: 11px; }
+    h1, h2, p { margin-top: 0; }
+    h1 { margin-bottom: 7px; color: #26342b; letter-spacing: -.045em; font-size: clamp(25px, 3vw, 33px); }
+    h1 span { color: #d3a548; font-size: .65em; }
+    .heading-copy { margin: 0; color: #7a887e; font-size: 12px; }
+    .heading-actions { display: flex; align-items: center; gap: 10px; }
+    .date-button, .filter-button {
+      display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px;
+      color: #59675e; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 11px;
+    }
+    .date-button svg, .filter-button svg { width: 15px; height: 15px; }
+    .filter-button { color: var(--green-dark); font-weight: 700; }
+    .catalog-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; margin-bottom: 17px; }
+    .summary-card, .panel {
+      min-width: 0; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+    }
+    .summary-card { min-height: 124px; padding: 17px; }
+    .summary-icon {
+      width: 31px; height: 31px; display: grid; place-items: center; margin-bottom: 13px; border-radius: 9px;
+    }
+    .summary-icon svg { width: 16px; height: 16px; }
+    .summary-icon.green { color: var(--green); background: var(--green-soft); }
+    .summary-icon.peach { color: #c77949; background: #fff0e7; }
+    .summary-icon.purple { color: var(--purple); background: var(--purple-soft); }
+    .summary-icon.blue { color: var(--blue); background: var(--blue-soft); }
+    .summary-label { color: #7a887e; font-size: 11px; }
+    .summary-value { margin-top: 5px; color: #28372e; letter-spacing: -.04em; font-size: 23px; font-weight: 750; }
+    .summary-note { margin-top: 6px; color: #9aa69e; font-size: 10px; }
+    .summary-note.good { color: var(--green); font-weight: 700; }
+
+    .catalog-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(285px, .65fr); gap: 17px; }
+    .panel { padding: 21px; }
+    .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .panel-heading h2 { margin: 0 0 5px; color: #2a382f; letter-spacing: -.02em; font-size: 14px; }
+    .panel-heading p { margin: 0; color: #89958d; font-size: 10px; }
+    .catalog-tools { display: flex; align-items: center; gap: 9px; margin: 22px 0 16px; }
+    .catalog-search {
+      min-width: 0; flex: 1; padding: 10px 11px 10px 35px; color: #364239; background: #f8faf7;
+      border: 1px solid var(--border); border-radius: 8px; outline: 0; font-size: 11px;
+    }
+    .catalog-search:focus { border-color: #9cc8a7; box-shadow: 0 0 0 3px rgba(112, 170, 130, .12); }
+    .search-wrap { position: relative; flex: 1; }
+    .search-wrap svg { position: absolute; top: 10px; left: 11px; width: 15px; height: 15px; color: #8b988f; pointer-events: none; }
+    .category-select {
+      max-width: 180px; padding: 10px 29px 10px 11px; color: #59675e; background: #fff;
+      border: 1px solid var(--border); border-radius: 8px; outline: 0; font-size: 11px;
+    }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      padding: 0 11px 10px; color: #a0aaa3; border-bottom: 1px solid var(--border);
+      text-align: left; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    }
+    td { padding: 13px 11px; color: #68766d; border-bottom: 1px solid #edf1ed; font-size: 11px; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fbfdfb; }
+    .food-name { display: flex; align-items: center; gap: 10px; color: #35433a; font-weight: 700; }
+    .food-symbol {
+      width: 29px; height: 29px; display: grid; place-items: center; flex: none;
+      color: var(--green); background: var(--green-soft); border-radius: 8px;
+    }
+    .food-symbol svg { width: 14px; height: 14px; }
+    .food-description { max-width: 240px; margin-top: 3px; overflow: hidden; color: #a0aaa3; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; font-weight: 400; }
+    .category-tag, .unit-tag {
+      display: inline-block; padding: 5px 7px; border-radius: 6px; font-size: 9px; font-weight: 700;
+    }
+    .category-tag { color: #6f83a6; background: var(--blue-soft); }
+    .unit-tag { color: #6c7d72; background: #f0f4ef; }
+    .quantity { color: #35433a; font-weight: 700; }
+    .empty-state { display: none; padding: 40px 15px; color: #89958d; text-align: center; font-size: 12px; }
+    .empty-state.visible { display: block; }
+    .error-banner {
+      display: none; margin-bottom: 17px; padding: 11px 13px; color: #9b5c57;
+      background: #fff0ef; border: 1px solid #f1d6d3; border-radius: 8px; font-size: 11px;
+    }
+    .error-banner.visible { display: flex; align-items: center; gap: 8px; }
+    .error-banner svg { width: 15px; height: 15px; flex: none; }
+    .side-stack { display: flex; flex-direction: column; gap: 17px; }
+    .category-list { display: flex; flex-direction: column; gap: 13px; margin-top: 23px; }
+    .category-row { display: flex; align-items: center; gap: 10px; }
+    .category-row-icon {
+      width: 30px; height: 30px; display: grid; place-items: center; flex: none;
+      color: var(--green); background: var(--green-soft); border-radius: 8px;
+    }
+    .category-row-icon svg { width: 14px; height: 14px; }
+    .category-info { min-width: 0; flex: 1; }
+    .category-info strong { display: block; overflow: hidden; color: #445148; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .category-info span { display: block; margin-top: 3px; color: #9aa49d; font-size: 9px; }
+    .category-count { color: var(--green-dark); font-size: 11px; font-weight: 750; }
+    .info-card { background: #f1f7f1; border: 0; box-shadow: none; }
+    .info-card .panel-heading h2 { color: var(--green-dark); }
+    .info-card p { margin: 21px 0 16px; color: #718078; font-size: 11px; line-height: 1.6; }
+    .info-points { display: flex; flex-direction: column; gap: 11px; }
+    .info-point { display: flex; align-items: flex-start; gap: 9px; color: #64736a; font-size: 10px; line-height: 1.45; }
+    .info-point svg { width: 14px; height: 14px; flex: none; color: var(--green); }
+    .footer { display: flex; justify-content: space-between; margin-top: 17px; color: #a0aaa3; font-size: 9px; line-height: 1.4; }
+    .footer strong { color: var(--green); }
+    .status-dot { width: 5px; height: 5px; display: inline-block; margin-left: 3px; background: var(--green); border-radius: 50%; }
+    .loading-row td { padding: 28px 11px; color: #89958d; text-align: center; }
+    .mobile-overlay { display: none; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 1050px) {
+      .sidebar { width: 225px; flex-basis: 225px; }
+      .topbar, .page-body { padding-left: 24px; padding-right: 24px; }
+      .catalog-layout { grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); }
+    }
+    @media (max-width: 820px) {
+      .sidebar {
+        position: fixed; z-index: 20; top: 0; bottom: 0; left: 0;
+        transform: translateX(-100%); transition: transform .2s; box-shadow: 10px 0 30px rgba(27, 49, 35, .12);
+      }
+      .sidebar.sidebar-open { transform: translateX(0); }
+      .mobile-close, .menu-toggle { display: grid; place-items: center; }
+      .mobile-close { margin-left: auto; }
+      .mobile-close svg, .menu-toggle svg { width: 19px; height: 19px; }
+      .mobile-overlay { position: fixed; z-index: 10; inset: 0; display: none; background: rgba(26, 44, 31, .22); border: 0; }
+      .mobile-overlay.visible { display: block; }
+      .topbar { justify-content: flex-start; }
+      .menu-toggle { flex: none; }
+      .top-actions { margin-left: auto; }
+      .search { display: none; }
+      .catalog-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .catalog-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .topbar { height: 62px; padding: 0 16px; }
+      .breadcrumbs { font-size: 11px; }
+      .new-button { padding: 8px; font-size: 0; }
+      .new-button svg { width: 16px; height: 16px; }
+      .page-body { padding: 25px 16px 18px; }
+      .page-heading { flex-direction: column; align-items: flex-start; margin-bottom: 22px; }
+      .heading-actions, .date-button { width: 100%; }
+      .date-button { justify-content: center; }
+      .filter-button { flex: 1; justify-content: center; }
+      .catalog-tools { align-items: stretch; flex-direction: column; }
+      .category-select { max-width: none; }
+      .panel { padding: 16px; }
+      .food-description { max-width: 130px; }
+      .catalog-summary { gap: 10px; }
+      .summary-card { min-height: 116px; padding: 14px; }
+      .summary-value { font-size: 21px; }
+      .footer { flex-direction: column; align-items: flex-start; gap: 7px; }
+    }
+    @media (max-width: 380px) {
+      .catalog-summary { grid-template-columns: 1fr; }
+      .food-description { display: none; }
+    }
+  </style>
+
+<style>
+.module-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:17px}.module-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(285px,.65fr);gap:17px}.module-table-wrap{overflow-x:auto;margin-top:22px}.module-table-wrap table{min-width:620px}.module-tag{display:inline-block;padding:5px 7px;border-radius:6px;font-size:9px;font-weight:700}.module-tag.blue{color:#6f83a6;background:var(--blue-soft)}.module-tag.green{color:var(--green-dark);background:var(--green-soft)}.module-tag.amber{color:#a8751f;background:var(--amber-soft)}.module-tag.red{color:#ad5d58;background:#fff0ef}.module-list{display:flex;flex-direction:column;gap:13px;margin-top:23px}.module-row{display:flex;align-items:center;gap:10px}.module-row-icon{width:30px;height:30px;display:grid;place-items:center;flex:none;color:var(--green);background:var(--green-soft);border-radius:8px;font-size:14px}.module-row-info{min-width:0;flex:1}.module-row-info strong{display:block;overflow:hidden;color:#445148;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.module-row-info span{display:block;margin-top:3px;color:#9aa49d;font-size:9px}.module-row-value{color:var(--green-dark);font-size:11px;font-weight:750}.module-info{margin-top:17px}.module-info p{margin:0 0 16px;color:#718078;font-size:11px;line-height:1.6}.module-info ul{padding:0;margin:0;list-style:none;color:#64736a;font-size:10px;line-height:1.45}.module-info li{display:flex;gap:8px;margin:10px 0}.module-info li::before{content:"✓";color:var(--green);font-weight:700}@media(max-width:820px){.module-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.module-layout{grid-template-columns:1fr}}@media(max-width:380px){.module-summary{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
+        </div>
+        <div>
+          <div class="brand-name">Nourish<span>Flow</span></div>
+          <div class="brand-sub">Supply &amp; nutrition operations</div>
+        </div>
+        <button class="mobile-close" id="closeMenu" aria-label="Close menu"><svg viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12"></path></svg></button>
+      </div>
+
+      <div class="workspace">
+        <div class="workspace-avatar">GN</div>
+        <div><strong>Goodness Network</strong><span>Vellore District</span></div>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </div>
+
+      <div class="nav-label">Workspace</div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-item"><svg viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg><span>Overview</span></button>
+        <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.74"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg><span>Beneficiaries</span></button>
+        <a class="nav-item" href="/catalog/index.html"><svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg><span>Food catalogue</span></a>
+        <a class="nav-item" href="/procurement/index.html"><svg viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg><span>Procurement</span><b>4</b></a>
+        <a class="nav-item active" aria-current="page" href="/inventory/index.html"><svg viewBox="0 0 24 24"><path d="m7.97 4.42-3-1.8a2 2 0 0 0-2.06 0l-3 1.8A2 2 0 0 0-1 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71Z" transform="translate(3 0)"></path><path d="m12 13.5 3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 7.5l-5 3v3Z"></path><path d="M7 16.5v5.17M17 16.5v5.17M12 8v5.5"></path></svg><span>Inventory</span><b>3</b></a>
+        <a class="nav-item" href="/distribution/index.html"><svg viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg><span>Distribution</span></a>
+        <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg><span>Programmes</span></button>
+        <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Quality &amp; wastage</span></button>
+        <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.7.7l3.6 3.6A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2Z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5M8 18v-2M12 18v-4M16 18v-6"></path></svg><span>Reports</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="nav-item"><svg viewBox="0 0 24 24"><path d="M9.67 4.14a2.34 2.34 0 0 1 4.66 0 2.34 2.34 0 0 0 3.32 1.91 2.34 2.34 0 0 1 2.33 4.03 2.34 2.34 0 0 0 0 3.83 2.34 2.34 0 0 1-2.33 4.03 2.34 2.34 0 0 0-3.32 1.92 2.34 2.34 0 0 1-4.66 0 2.34 2.34 0 0 0-3.32-1.92 2.34 2.34 0 0 1-2.33-4.03 2.34 2.34 0 0 0 0-3.83 2.34 2.34 0 0 1 2.33-4.03 2.34 2.34 0 0 0 3.32-1.91Z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Settings</span></button>
+        <div class="help-card">
+          <div class="help-icon"><svg viewBox="0 0 24 24"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05Z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg></div>
+          <strong>Need a hand?</strong><p>Visit the operations guide for quick answers.</p>
+          <button type="button">Open guide <svg viewBox="0 0 24 24"><path d="M7 7h10v10M7 17 17 7"></path></svg></button>
+        </div>
+        <div class="profile">
+          <div class="profile-avatar">PA</div><div><strong>Parth Anand</strong><span>Programme manager</span></div>
+          <button type="button" aria-label="Profile menu"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-toggle" id="openMenu" aria-label="Open menu"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"></path></svg></button>
+        <div class="breadcrumbs"><span>Workspace</span><span>/</span><strong>Inventory</strong></div>
+        <div class="top-actions">
+          <label class="search"><svg viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg><input id="globalSearch" placeholder="Search anything..." aria-label="Search"></label><kbd>⌘ K</kbd>
+          <button class="icon-button notification" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M10.27 21a2 2 0 0 0 3.46 0M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.41 5.96-2.74 7.33Z"></path></svg><i></i></button>
+          <button class="new-button" type="button" id="newRequest"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"></path></svg><span>New request</span></button>
+        </div>
+      </header>
+
+      <div class="page-body">
+        <section class="page-heading"><div><p class="eyebrow">Friday, 10 October 2026</p><h1>Inventory <span>✦</span></h1><p class="heading-copy">Monitor stock batches, expiry dates, movements, and warehouse capacity.</p></div><div class="heading-actions"><button class="date-button" type="button">Live data</button><button class="filter-button" type="button" id="clearFilters">Clear filters</button></div></section>
+        <div class="error-banner" id="errorBanner"><span id="errorMessage"></span></div>
+        <section class="module-summary"><div class="summary-card"><div class="summary-icon green">▣</div><div class="summary-label">Stock batches</div><div class="summary-value" id="batchCount">—</div><div class="summary-note good">Tracked in the database</div></div><div class="summary-card"><div class="summary-icon peach">◉</div><div class="summary-label">Available quantity</div><div class="summary-value" id="quantityCount">—</div><div class="summary-note">Total across batches</div></div><div class="summary-card"><div class="summary-icon purple">⌂</div><div class="summary-label">Warehouses</div><div class="summary-value" id="warehouseCount">—</div><div class="summary-note">Registered locations</div></div><div class="summary-card"><div class="summary-icon blue">!</div><div class="summary-label">Expiring soon</div><div class="summary-value" id="expiringCount">—</div><div class="summary-note">Within the next 30 days</div></div></section><section class="module-layout"><div class="panel"><div class="panel-heading"><div><h2>Stock batches</h2><p>First-expiry-first-out inventory view.</p></div><select class="category-select" id="warehouseFilter"><option value="">All warehouses</option></select></div><div class="module-table-wrap"><table><thead><tr><th>Batch</th><th>Food item</th><th>Warehouse</th><th>Available</th><th>Expiry</th></tr></thead><tbody id="moduleBody"><tr class="loading-row"><td colspan="5">Loading inventory data…</td></tr></tbody></table></div></div><div class="side-stack"><div class="panel"><div class="panel-heading"><div><h2>Warehouses</h2><p>Capacity and stock locations.</p></div></div><div class="module-list" id="sideList"><div class="loading-row">Loading warehouses…</div></div></div><div class="panel info-card module-info"><div class="panel-heading"><div><h2>Inventory guidance</h2><p>Keep stock healthy</p></div></div><p>Review batches approaching expiry before receiving new stock and use FEFO for deductions.</p><ul><li>Track available quantity by warehouse.</li><li>Prioritise batches with the earliest expiry.</li><li>Review low stock before creating procurement requests.</li></ul></div></div></section>
+
+        <footer class="footer"><span>© 2026 NourishFlow</span><span>Data synced <span id="lastSynced">waiting for API</span> <i class="status-dot"></i></span><span>Spring Boot API <strong>● Online</strong></span></footer>
+      </div>
+    </main>
+  </div>
+  <button class="mobile-overlay" id="mobileOverlay" aria-label="Close menu"></button>
+
+
+  <script>
+    (()=>{
+      const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+      const errorBanner=document.getElementById("errorBanner"), errorMessage=document.getElementById("errorMessage");
+      const setError=m=>{errorMessage.textContent=m;errorBanner.classList.add("visible")};
+      const clearError=()=>errorBanner.classList.remove("visible");
+      const sync=()=>document.getElementById("lastSynced").textContent=new Intl.DateTimeFormat([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date());
+      const state={batches:[],warehouses:[],busy:false};const el={body:document.getElementById("moduleBody"),list:document.getElementById("sideList"),filter:document.getElementById("warehouseFilter")};function render(){const selected=el.filter.value,rows=state.batches.filter(b=>!selected||String(b.warehouse?.warehouseId??b.warehouseId)===selected),now=Date.now(),soon=now+2592e6;document.getElementById("batchCount").textContent=state.batches.length.toLocaleString();document.getElementById("quantityCount").textContent=state.batches.reduce((n,b)=>n+(Number(b.quantityAvailable)||0),0).toLocaleString();document.getElementById("warehouseCount").textContent=state.warehouses.length.toLocaleString();document.getElementById("expiringCount").textContent=state.batches.filter(b=>b.expiryDate&&new Date(b.expiryDate).getTime()<=soon).length.toLocaleString();el.body.innerHTML=rows.length?rows.map(b=>{const exp=b.expiryDate?new Date(b.expiryDate):null,cls=exp&&exp.getTime()<now?"red":exp&&exp.getTime()<=soon?"amber":"green";return`<tr><td><div class="food-name"><div class="food-symbol">▣</div><div><div>${esc(b.batchNumber||"—")}</div><div class="food-description">Inventory batch record</div></div></div></td><td>${esc(b.foodItem?.name||b.foodItemName||"Food item")}</td><td>${esc(b.warehouse?.name||b.warehouseName||"Warehouse")}</td><td class="quantity">${esc(b.quantityAvailable??0)}</td><td><span class="module-tag ${cls}">${esc(b.expiryDate||"—")}</span></td></tr>`}).join(""):'<tr><td colspan="5" class="loading-row">No stock batches match this filter.</td></tr>';el.list.innerHTML=state.warehouses.length?state.warehouses.map(w=>`<div class="module-row"><div class="module-row-icon">⌂</div><div class="module-row-info"><strong>${esc(w.name||"Unnamed warehouse")}</strong><span>${esc(w.location||"Location not specified")}</span></div><div class="module-row-value">${esc(w.capacity??"—")}</div></div>`).join(""):'<div class="empty-state visible">No warehouses available.</div>'}async function load(){if(state.busy)return;state.busy=true;try{const [b,w]=await Promise.all([fetch("/api/inventory/batches",{cache:"no-store"}),fetch("/api/inventory/warehouses",{cache:"no-store"})]);if(!b.ok||!w.ok)throw Error(`Inventory API returned ${b.status}/${w.status}.`);const [batches,warehouses]=await Promise.all([b.json(),w.json()]);if(!Array.isArray(batches)||!Array.isArray(warehouses))throw Error("Inventory API returned an unexpected response.");state.batches=batches;state.warehouses=warehouses;const current=el.filter.value;el.filter.innerHTML='<option value="">All warehouses</option>'+warehouses.map(w=>`<option value="${esc(w.warehouseId)}">${esc(w.name)}</option>`).join("");el.filter.value=[...el.filter.options].some(o=>o.value===current)?current:"";render();clearError();sync()}catch(e){setError(`Could not load inventory data. ${e.message} Check that the supply-service API is running.`)}finally{state.busy=false}}
+      const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
+      document.getElementById("openMenu").onclick=()=>{document.getElementById("sidebar").classList.add("sidebar-open");document.getElementById("mobileOverlay").classList.add("visible")};
+      document.getElementById("closeMenu").onclick=closeMenu;document.getElementById("mobileOverlay").onclick=closeMenu;
+      document.getElementById("clearFilters").onclick=()=>{document.querySelectorAll("select").forEach(s=>s.value="");render()};
+      document.getElementById("refreshButton").onclick=load;document.querySelectorAll("select").forEach(s=>s.onchange=render);load();setInterval(load,15000);
+    })();
+  </script>
+
+</body>
+</html>
