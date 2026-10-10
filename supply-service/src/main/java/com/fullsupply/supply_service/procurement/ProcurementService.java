@@ -1,8 +1,14 @@
 package com.fullsupply.supply_service.procurement;
 
 import com.fullsupply.supply_service.inventory.BatchService;
-import com.fullsupply.supply_service.inventory.StockBatch;
-import com.fullsupply.supply_service.inventory.Warehouse;
+import com.fullsupply.supply_service.inventory.entity.StockBatch;
+import com.fullsupply.supply_service.inventory.entity.Warehouse;
+import com.fullsupply.supply_service.procurement.entity.ProcurementRequest;
+import com.fullsupply.supply_service.procurement.entity.PurchaseOrder;
+import com.fullsupply.supply_service.procurement.entity.PurchaseOrderItem;
+import com.fullsupply.supply_service.procurement.repository.ProcurementRequestRepository;
+import com.fullsupply.supply_service.procurement.repository.PurchaseOrderItemRepository;
+import com.fullsupply.supply_service.procurement.repository.PurchaseOrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

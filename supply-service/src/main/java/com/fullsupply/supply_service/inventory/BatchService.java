@@ -1,6 +1,9 @@
 package com.fullsupply.supply_service.inventory;
 
-import com.fullsupply.supply_service.catalog.FoodItem;
+import com.fullsupply.supply_service.inventory.entity.StockBatch;
+import com.fullsupply.supply_service.inventory.entity.StockMovement;
+import com.fullsupply.supply_service.inventory.repository.StockBatchRepository;
+import com.fullsupply.supply_service.inventory.repository.StockMovementRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
