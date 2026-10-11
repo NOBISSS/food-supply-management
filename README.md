@@ -180,7 +180,7 @@ migrates only its own tables — there are no cross-service foreign keys. See
 | GET | `/api/procurement/requests` | List procurement requests |
 | POST | `/api/procurement/orders` | Approve request, create purchase order |
 | POST | `/api/procurement/orders/{orderId}/items` | Add item to a purchase order |
-| POST | `/api/procurement/orders/{orderId}/deliver` | Mark order delivered, receive stock |
+| POST | `/api/procurement/orders/{orderId}/deliver` | Mark order delivered, receive the stock |
 | GET | `/api/procurement/orders` | List purchase orders |
 | GET | `/api/distribution/centres` | List distribution centres |
 | POST | `/api/distribution/centres` | Create a distribution centre |
