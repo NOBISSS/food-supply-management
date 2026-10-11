@@ -4,15 +4,15 @@ services:
     container_name: food-supply-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: food_supply_db
-      POSTGRES_USER: food_admin
-      POSTGRES_PASSWORD: team18pass123
+      POSTGRES_DB: ${POSTGRES_DB:-food_supply_db}
+      POSTGRES_USER: ${POSTGRES_USER:-food_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-team18pass123}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U food_admin -d food_supply_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-food_admin} -d ${POSTGRES_DB:-food_supply_db}"]
       interval: 5s
       timeout: 5s
       retries: 10
