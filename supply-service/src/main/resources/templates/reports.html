@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NourishFlow - Reports</title>
+  <style>
+    :root{--bg:#f4f6f1;--paper:#fff;--ink:#20352a;--muted:#78867d;--line:#e3e9e1;--green:#28734c;--mint:#e7f2e9}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px Inter,system-ui,sans-serif}
+    .page{max-width:920px;margin:0 auto;padding:42px 24px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+    .brand{font-size:20px;font-weight:800;text-decoration:none;color:var(--ink)}.brand span{color:var(--green)}
+    .actions{display:flex;gap:8px}.button{border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--paper);color:var(--ink);font-weight:700;cursor:pointer;text-decoration:none}.primary{background:var(--green);color:#fff;border-color:var(--green)}
+    h1{margin:0 0 8px;font-size:32px;letter-spacing:-.05em}.intro{color:var(--muted);margin:0 0 24px}.card{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:22px;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{padding:16px;background:var(--mint);border-radius:10px}.metric span{display:block;color:var(--muted);font-size:11px}.metric b{display:block;margin-top:8px;font-size:25px}.status{color:var(--muted);font-size:12px}.error{display:none;color:#a44e47;background:#fff0ee;border:1px solid #f1d8d4;border-radius:8px;padding:10px;margin-top:14px}.error.show{display:block}
+    @media(max-width:650px){.top{align-items:flex-start;gap:14px;flex-direction:column}.grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body><main class="page">
+  <header class="top"><a class="brand" href="/">Nourish<span>Flow</span></a><div class="actions"><button class="button primary" id="download">Download CSV</button><button class="button" onclick="logout()">Logout</button></div></header>
+  <h1>Operations reports</h1><p class="intro">A live summary of catalogue, inventory, procurement, delivery, and quality activity.</p>
+  <section class="card"><div class="grid">
+    <div class="metric"><span>Food catalogue</span><b id="catalogue">-</b></div><div class="metric"><span>Inventory batches</span><b id="inventory">-</b></div><div class="metric"><span>Delivery plans</span><b id="distribution">-</b></div><div class="metric"><span>Pending requests</span><b id="pending">-</b></div>
+  </div><p class="status" id="status">Loading live service data...</p><div class="error" id="error"></div></section>
+</main><script>
+const $=id=>document.getElementById(id), endpoints={catalogue:'/api/catalog/items',inventory:'/api/inventory/batches',distribution:'/api/distribution/plans',procurement:'/api/procurement/requests'};
+const data={};
+function logout(){localStorage.removeItem('token');localStorage.removeItem('username');localStorage.removeItem('role');document.cookie='token=; path=/; max-age=0; SameSite=Lax';window.location.href='http://localhost:8081/login'}
+async function load(){const results=await Promise.allSettled(Object.entries(endpoints).map(async([key,url])=>[key,await (await fetch(url,{cache:'no-store'})).json()]));const failed=[];results.forEach((r,i)=>r.status==='fulfilled'?data[r.value[0]]=r.value[1]:failed.push(Object.keys(endpoints)[i]));if(data.catalogue)$('catalogue').textContent=data.catalogue.length;if(data.inventory)$('inventory').textContent=data.inventory.length;if(data.distribution)$('distribution').textContent=data.distribution.length;if(data.procurement)$('pending').textContent=data.procurement.filter(x=>x.status==='PENDING').length;$('status').textContent=failed.length?'Some services are unavailable':'All systems online';$('error').textContent=failed.length?'Could not reach: '+failed.join(', '):'';$('error').classList.toggle('show',failed.length>0)}
+$('download').onclick=()=>{const rows=[['NourishFlow operations report',new Date().toLocaleString()],['Food catalogue',data.catalogue?.length??0],['Inventory batches',data.inventory?.length??0],['Delivery plans',data.distribution?.length??0],['Pending procurement requests',data.procurement?.filter(x=>x.status==='PENDING').length??0]];const csv=rows.map(row=>row.map(value=>`"${String(value).replaceAll('"','""')}"`).join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='nourishflow-operations-report.csv';a.click();URL.revokeObjectURL(a.href)};load();
+</script></body></html>

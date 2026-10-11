@@ -324,7 +324,7 @@
 <a class="nav-item active" aria-current="page" href="/distribution" th:href="@{/distribution}"><span class="nav-glyph">&#8674;</span><span>Distribution</span></a>
 <a class="nav-item" href="http://localhost:8082/nutrition-programmes"><span class="nav-glyph">&#10047;</span><span>Programmes</span></a>
 <a class="nav-item" href="http://localhost:8084/quality"><span class="nav-glyph">&#10003;</span><span>Quality &amp; wastage</span></a>
-<a class="nav-item" href="/#reports" th:href="@{/#reports}"><span class="nav-glyph">&#9639;</span><span>Reports</span></a>
+<a class="nav-item" href="/reports" th:href="@{/reports}"><span class="nav-glyph">&#9639;</span><span>Reports</span></a>
 </nav>
 
       <div class="sidebar-bottom">
@@ -336,7 +336,7 @@
         </div>
         <div class="profile">
           <div class="profile-avatar">PA</div><div><strong>Parth Anand</strong><span>Programme manager</span></div>
-          <button type="button" aria-label="Profile menu"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button>
+          <button type="button" aria-label="Log out" onclick="logout()">Logout</button>
         </div>
       </div>
     </aside>
@@ -372,7 +372,7 @@
       const clearError=()=>errorBanner.classList.remove("visible");
       const sync=()=>document.getElementById("lastSynced").textContent=new Intl.DateTimeFormat([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date());
       const state={plans:[],centres:[],busy:false};const el={body:document.getElementById("moduleBody"),list:document.getElementById("sideList"),filter:document.getElementById("statusFilter")};function render(){const rows=state.plans.filter(p=>!el.filter.value||p.status===el.filter.value);document.getElementById("planCount").textContent=state.plans.length.toLocaleString();document.getElementById("beneficiaryCount").textContent=state.plans.reduce((n,p)=>n+(Number(p.targetBeneficiaryCount)||0),0).toLocaleString();document.getElementById("deliveredCount").textContent=state.plans.filter(p=>p.status==="DELIVERED").length.toLocaleString();document.getElementById("centreCount").textContent=state.centres.length.toLocaleString();el.body.innerHTML=rows.length?rows.map(p=>`<tr><td><div class="food-name"><div class="food-symbol">⇢</div><div><div>DP-${esc(p.planId)}</div><div class="food-description">Distribution delivery plan</div></div></div></td><td>${esc(p.plannedDate||"—")}</td><td class="quantity">${esc(p.targetBeneficiaryCount||0)}</td><td><span class="module-tag ${p.status==="DELIVERED"?"green":p.status==="DRAFT_WITH_SHORTAGE"?"amber":"blue"}">${esc(p.status||"UNKNOWN")}</span></td></tr>`).join(""):'<tr><td colspan="4" class="loading-row">No distribution plans match this filter.</td></tr>';el.list.innerHTML=state.centres.length?state.centres.map(c=>`<div class="module-row"><div class="module-row-icon">⌖</div><div class="module-row-info"><strong>${esc(c.name||"Unnamed centre")}</strong><span>${esc(c.location||"Location not specified")}</span></div><div class="module-row-value">${esc(c.capacity??"—")}</div></div>`).join(""):'<div class="empty-state visible">No centres available.</div>'}async function load(){if(state.busy)return;state.busy=true;try{const [p,c]=await Promise.all([fetch("/api/distribution/plans",{cache:"no-store"}),fetch("/api/distribution/centres",{cache:"no-store"})]);if(!p.ok||!c.ok)throw Error(`Distribution API returned ${p.status}/${c.status}.`);const [plans,centres]=await Promise.all([p.json(),c.json()]);if(!Array.isArray(plans)||!Array.isArray(centres))throw Error("Distribution API returned an unexpected response.");state.plans=plans;state.centres=centres;render();clearError();sync()}catch(e){setError(`Could not load distribution data. ${e.message} Check that the supply-service API is running.`)}finally{state.busy=false}}
-      const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
+      window.logout=()=>{localStorage.removeItem("token");localStorage.removeItem("username");localStorage.removeItem("role");document.cookie="token=; path=/; max-age=0; SameSite=Lax";window.location.href="http://localhost:8081/login"};const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
       document.getElementById("openMenu").onclick=()=>{document.getElementById("sidebar").classList.add("sidebar-open");document.getElementById("mobileOverlay").classList.add("visible")};
       document.getElementById("closeMenu").onclick=closeMenu;document.getElementById("mobileOverlay").onclick=closeMenu;
       document.getElementById("clearFilters").onclick=()=>{document.querySelectorAll("select").forEach(s=>s.value="");render()};

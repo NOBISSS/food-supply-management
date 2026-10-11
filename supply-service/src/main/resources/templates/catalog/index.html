@@ -320,7 +320,7 @@
 <a class="nav-item" href="/distribution" th:href="@{/distribution}"><span class="nav-glyph">&#8674;</span><span>Distribution</span></a>
 <a class="nav-item" href="http://localhost:8082/nutrition-programmes"><span class="nav-glyph">&#10047;</span><span>Programmes</span></a>
 <a class="nav-item" href="http://localhost:8084/quality"><span class="nav-glyph">&#10003;</span><span>Quality &amp; wastage</span></a>
-<a class="nav-item" href="/#reports" th:href="@{/#reports}"><span class="nav-glyph">&#9639;</span><span>Reports</span></a>
+<a class="nav-item" href="/reports" th:href="@{/reports}"><span class="nav-glyph">&#9639;</span><span>Reports</span></a>
 </nav>
 
       <div class="sidebar-bottom">
@@ -332,7 +332,7 @@
         </div>
         <div class="profile">
           <div class="profile-avatar">PA</div><div><strong>Parth Anand</strong><span>Programme manager</span></div>
-          <button type="button" aria-label="Profile menu"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button>
+          <button type="button" aria-label="Log out" onclick="logout()">Logout</button>
         </div>
       </div>
     </aside>
@@ -447,7 +447,7 @@
           render();clearError();document.getElementById("connectionStatus").textContent="Online";document.getElementById("syncNote").textContent="Connected to API";sync();
         }catch(e){setError(`Could not load catalogue data. ${e.message} Check that the supply-service API is running.`)}finally{refresh.disabled=false}
       }
-      const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
+      window.logout=()=>{localStorage.removeItem("token");localStorage.removeItem("username");localStorage.removeItem("role");document.cookie="token=; path=/; max-age=0; SameSite=Lax";window.location.href="http://localhost:8081/login"};const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
       document.getElementById("openMenu").onclick=()=>{document.getElementById("sidebar").classList.add("sidebar-open");document.getElementById("mobileOverlay").classList.add("visible")};
       document.getElementById("closeMenu").onclick=closeMenu;document.getElementById("mobileOverlay").onclick=closeMenu;
       document.getElementById("clearFilters").onclick=()=>{filter.value="";search.value="";render()};

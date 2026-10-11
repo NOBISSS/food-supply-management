@@ -324,7 +324,7 @@
 <a class="nav-item" href="/distribution" th:href="@{/distribution}"><span class="nav-glyph">&#8674;</span><span>Distribution</span></a>
 <a class="nav-item" href="http://localhost:8082/nutrition-programmes"><span class="nav-glyph">&#10047;</span><span>Programmes</span></a>
 <a class="nav-item" href="http://localhost:8084/quality"><span class="nav-glyph">&#10003;</span><span>Quality &amp; wastage</span></a>
-<a class="nav-item" href="/#reports" th:href="@{/#reports}"><span class="nav-glyph">&#9639;</span><span>Reports</span></a>
+<a class="nav-item" href="/reports" th:href="@{/reports}"><span class="nav-glyph">&#9639;</span><span>Reports</span></a>
 </nav>
 
       <div class="sidebar-bottom">
@@ -336,7 +336,7 @@
         </div>
         <div class="profile">
           <div class="profile-avatar">PA</div><div><strong>Parth Anand</strong><span>Programme manager</span></div>
-          <button type="button" aria-label="Profile menu"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button>
+          <button type="button" aria-label="Log out" onclick="logout()">Logout</button>
         </div>
       </div>
     </aside>
@@ -372,7 +372,7 @@
       const clearError=()=>errorBanner.classList.remove("visible");
       const sync=()=>document.getElementById("lastSynced").textContent=new Intl.DateTimeFormat([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date());
       const state={requests:[],orders:[],suppliers:[],busy:false};const el={body:document.getElementById("moduleBody"),list:document.getElementById("sideList"),filter:document.getElementById("statusFilter")};function render(){const rows=state.requests.filter(r=>!el.filter.value||r.status===el.filter.value);document.getElementById("requestCount").textContent=state.requests.length.toLocaleString();document.getElementById("pendingCount").textContent=state.requests.filter(r=>r.status==="PENDING").length.toLocaleString();document.getElementById("orderCount").textContent=state.orders.length.toLocaleString();document.getElementById("supplierCount").textContent=state.suppliers.length.toLocaleString();el.body.innerHTML=rows.length?rows.map(r=>`<tr><td><div class="food-name"><div class="food-symbol">⌑</div><div><div>REQ-${esc(r.requestId)}</div><div class="food-description">Procurement request record</div></div></div></td><td>${esc(r.foodItem?.name||r.foodItemName||"Food item")}</td><td class="quantity">${esc(r.requestedQuantity??"—")}</td><td>${esc(r.requestDate||"—")}</td><td><span class="module-tag ${r.status==="PENDING"?"amber":r.status==="DELIVERED"?"green":"blue"}">${esc(r.status||"UNKNOWN")}</span></td></tr>`).join(""):'<tr><td colspan="5" class="loading-row">No procurement requests match this filter.</td></tr>';el.list.innerHTML=state.suppliers.length?state.suppliers.map(s=>`<div class="module-row"><div class="module-row-icon">★</div><div class="module-row-info"><strong>${esc(s.name||"Unnamed supplier")}</strong><span>${esc(s.contactPerson||s.email||"Supplier contact not specified")}</span></div><div class="module-row-value">${esc(s.rating??"—")}</div></div>`).join(""):'<div class="empty-state visible">No suppliers available.</div>'}async function load(){if(state.busy)return;state.busy=true;try{const [r,o,s]=await Promise.all([fetch("/api/procurement/requests",{cache:"no-store"}),fetch("/api/procurement/orders",{cache:"no-store"}),fetch("/api/procurement/suppliers",{cache:"no-store"})]);if(!r.ok||!o.ok||!s.ok)throw Error(`Procurement API returned ${r.status}/${o.status}/${s.status}.`);const [requests,orders,suppliers]=await Promise.all([r.json(),o.json(),s.json()]);if(!Array.isArray(requests)||!Array.isArray(orders)||!Array.isArray(suppliers))throw Error("Procurement API returned an unexpected response.");state.requests=requests;state.orders=orders;state.suppliers=suppliers;render();clearError();sync()}catch(e){setError(`Could not load procurement data. ${e.message} Check that the supply-service API is running.`)}finally{state.busy=false}}
-      const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
+      window.logout=()=>{localStorage.removeItem("token");localStorage.removeItem("username");localStorage.removeItem("role");document.cookie="token=; path=/; max-age=0; SameSite=Lax";window.location.href="http://localhost:8081/login"};const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
       document.getElementById("openMenu").onclick=()=>{document.getElementById("sidebar").classList.add("sidebar-open");document.getElementById("mobileOverlay").classList.add("visible")};
       document.getElementById("closeMenu").onclick=closeMenu;document.getElementById("mobileOverlay").onclick=closeMenu;
       document.getElementById("clearFilters").onclick=()=>{document.querySelectorAll("select").forEach(s=>s.value="");render()};

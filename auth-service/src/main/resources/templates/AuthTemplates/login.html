@@ -190,16 +190,10 @@
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('role', data.role);
-					document.cookie = `token=${data.token}; domain=localhost; path=/; max-age=86400; SameSite=Lax`;
+					document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
                     messageBox.className = 'message success';
                     messageBox.textContent = 'Login successful!';
-                    const next = new URLSearchParams(window.location.search).get('next');
-                    const destination = next === 'programmes'
-                        ? 'http://localhost:8082/nutrition-programmes'
-                        : next === 'beneficiaries'
-                            ? 'http://localhost:8082/beneficiaries'
-                            : 'http://localhost:8083/';
-                    window.location.href = destination;
+                    window.location.href = 'http://localhost:8083/';
                 } else {
                     messageBox.className = 'message error';
                     messageBox.textContent = data.message || 'Login failed. Please check your credentials.';

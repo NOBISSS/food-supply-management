@@ -29,6 +29,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                      @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
+        if (header == null) {
+            String cookieToken = java.util.Arrays.stream(
+                            java.util.Optional.ofNullable(request.getCookies()).orElse(new jakarta.servlet.http.Cookie[0]))
+                    .filter(cookie -> "token".equals(cookie.getName()))
+                    .map(jakarta.servlet.http.Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+            if (cookieToken != null) {
+                header = "Bearer " + cookieToken;
+            }
+        }
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);

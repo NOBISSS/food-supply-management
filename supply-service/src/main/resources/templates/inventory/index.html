@@ -324,7 +324,7 @@
 <a class="nav-item" href="/distribution" th:href="@{/distribution}"><span class="nav-glyph">&#8674;</span><span>Distribution</span></a>
 <a class="nav-item" href="http://localhost:8082/nutrition-programmes"><span class="nav-glyph">&#10047;</span><span>Programmes</span></a>
 <a class="nav-item" href="http://localhost:8084/quality"><span class="nav-glyph">&#10003;</span><span>Quality &amp; wastage</span></a>
-<a class="nav-item" href="/#reports" th:href="@{/#reports}"><span class="nav-glyph">&#9639;</span><span>Reports</span></a>
+<a class="nav-item" href="/reports" th:href="@{/reports}"><span class="nav-glyph">&#9639;</span><span>Reports</span></a>
 </nav>
 
       <div class="sidebar-bottom">
@@ -336,7 +336,7 @@
         </div>
         <div class="profile">
           <div class="profile-avatar">PA</div><div><strong>Parth Anand</strong><span>Programme manager</span></div>
-          <button type="button" aria-label="Profile menu"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button>
+          <button type="button" aria-label="Log out" onclick="logout()">Logout</button>
         </div>
       </div>
     </aside>
@@ -372,7 +372,7 @@
       const clearError=()=>errorBanner.classList.remove("visible");
       const sync=()=>document.getElementById("lastSynced").textContent=new Intl.DateTimeFormat([], {hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date());
       const state={batches:[],warehouses:[],busy:false};const el={body:document.getElementById("moduleBody"),list:document.getElementById("sideList"),filter:document.getElementById("warehouseFilter")};function render(){const selected=el.filter.value,rows=state.batches.filter(b=>!selected||String(b.warehouse?.warehouseId??b.warehouseId)===selected),now=Date.now(),soon=now+2592e6;document.getElementById("batchCount").textContent=state.batches.length.toLocaleString();document.getElementById("quantityCount").textContent=state.batches.reduce((n,b)=>n+(Number(b.quantityAvailable)||0),0).toLocaleString();document.getElementById("warehouseCount").textContent=state.warehouses.length.toLocaleString();document.getElementById("expiringCount").textContent=state.batches.filter(b=>b.expiryDate&&new Date(b.expiryDate).getTime()<=soon).length.toLocaleString();el.body.innerHTML=rows.length?rows.map(b=>{const exp=b.expiryDate?new Date(b.expiryDate):null,cls=exp&&exp.getTime()<now?"red":exp&&exp.getTime()<=soon?"amber":"green";return`<tr><td><div class="food-name"><div class="food-symbol">▣</div><div><div>${esc(b.batchNumber||"—")}</div><div class="food-description">Inventory batch record</div></div></div></td><td>${esc(b.foodItem?.name||b.foodItemName||"Food item")}</td><td>${esc(b.warehouse?.name||b.warehouseName||"Warehouse")}</td><td class="quantity">${esc(b.quantityAvailable??0)}</td><td><span class="module-tag ${cls}">${esc(b.expiryDate||"—")}</span></td></tr>`}).join(""):'<tr><td colspan="5" class="loading-row">No stock batches match this filter.</td></tr>';el.list.innerHTML=state.warehouses.length?state.warehouses.map(w=>`<div class="module-row"><div class="module-row-icon">⌂</div><div class="module-row-info"><strong>${esc(w.name||"Unnamed warehouse")}</strong><span>${esc(w.location||"Location not specified")}</span></div><div class="module-row-value">${esc(w.capacity??"—")}</div></div>`).join(""):'<div class="empty-state visible">No warehouses available.</div>'}async function load(){if(state.busy)return;state.busy=true;try{const [b,w]=await Promise.all([fetch("/api/inventory/batches",{cache:"no-store"}),fetch("/api/inventory/warehouses",{cache:"no-store"})]);if(!b.ok||!w.ok)throw Error(`Inventory API returned ${b.status}/${w.status}.`);const [batches,warehouses]=await Promise.all([b.json(),w.json()]);if(!Array.isArray(batches)||!Array.isArray(warehouses))throw Error("Inventory API returned an unexpected response.");state.batches=batches;state.warehouses=warehouses;const current=el.filter.value;el.filter.innerHTML='<option value="">All warehouses</option>'+warehouses.map(w=>`<option value="${esc(w.warehouseId)}">${esc(w.name)}</option>`).join("");el.filter.value=[...el.filter.options].some(o=>o.value===current)?current:"";render();clearError();sync()}catch(e){setError(`Could not load inventory data. ${e.message} Check that the supply-service API is running.`)}finally{state.busy=false}}
-      const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
+      window.logout=()=>{localStorage.removeItem("token");localStorage.removeItem("username");localStorage.removeItem("role");document.cookie="token=; path=/; max-age=0; SameSite=Lax";window.location.href="http://localhost:8081/login"};const closeMenu=()=>{document.getElementById("sidebar").classList.remove("sidebar-open");document.getElementById("mobileOverlay").classList.remove("visible")};
       document.getElementById("openMenu").onclick=()=>{document.getElementById("sidebar").classList.add("sidebar-open");document.getElementById("mobileOverlay").classList.add("visible")};
       document.getElementById("closeMenu").onclick=closeMenu;document.getElementById("mobileOverlay").onclick=closeMenu;
       document.getElementById("clearFilters").onclick=()=>{document.querySelectorAll("select").forEach(s=>s.value="");render()};
