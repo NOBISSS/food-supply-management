@@ -226,3 +226,7 @@ food-supply-management/
   variables when running.
 - See `docs/ARCHITECTURE.md` for the full target design, including components not yet built
   (API gateway, web UI, inter-service REST calls, and the remaining domain services).
+
+---
+
+Built by Team18 in 24 hours for the Enterprise Java Hackathon. Thanks for reviewing!
